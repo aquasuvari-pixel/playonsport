@@ -178,7 +178,6 @@
     </footer>
 
     <script>
-        // EKRAN GÖRÜNTÜSÜNDEKİ %100 DOĞRU ADRES BURAYA SABİTLENDİ
         const SUPABASE_URL = "https://pmonbnhhrjiknsrnprn.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtb25ibmhocmppa25zcm5wcm5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTE2MzcsImV4cCI6MjA5NTk2NzYzN30.4uKwQKUmDkMH6To01HP3VnOKr45CPNw6KvizH2ZO85o";
         
@@ -208,7 +207,7 @@
                 ctaBtn: "Hemen Kaydol & Oyna", learnMoreBtn: "Nasıl Çalıştığını Öğren ➡️", footerText: "© 2026 PlayOnSport - Bir ADS Spor Kulübü organizasyonudur.", btnText: "🇬🇧 EN",
                 infoTitle: "ℹ️ PlayOnSport Nasıl Çalışır?", infoS1T: "1. Sporcu Profilini Oluştur", infoS1D: "Voleybol seviyeni ve oynamak istediğin pozisyonu seçerek kaydol. Bu, dengeli ve rekabetçi maçlar ayarlamamıza yardımcı olur.",
                 infoS2T: "2. Bir Maç Seç", infoS2D: "Londra'da ADS Spor Kulübü kalitesiyle düzenlenen aktif voleybol maçlarına göz at. Sana en uygun zaman ve salonu seç.",
-                infoS3T: "3. 12 Kişilik Grup Sistemi", infoS3D: "Her etkinlik maksimum 12 oyuncu (6'şar kişilik iki takım) ile sınırlıdır. 12. kişi kayıt olduğunda grup otomatik kapanır und maç kesinleşir.",
+                infoS3T: "3. 12 Kişilik Grup Sistemi", infoS3D: "Her etkinlik maksimum 12 oyuncu (6'şar kişilik iki takım) ile sınırlıdır. 12. kişi kayıt olduğunda grup otomatik kapanır ve maç kesinleşir.",
                 infoS4T: "4. Onayla ve Oyna", infoS4D: "Yönetimin yönlendirdiği şekilde basit bir banka havalesi ile yerini kesinleştir. Maç günü sahaya gel, takımınla tanış ve amatör sporun tadını çıkar!", infoCta: "Aktif Maçları Hemen Gör",
                 eventsTitle: "Aktif Maçlar", matchCount: " Maç", badgeLevel: "Orta Seviye", cardTitle: "PlayOnSport Voleybol Etkinliği", lblHall: "Salon:", lblPrice: "Ücret:", lblQuota: "Kontenjan:", btnJoin: "Maça Katıl",
                 regTitle: "Hesap Oluştur", lblName: "Ad Soyad", lblAge: "Yaş", lblGender: "Cinsiyet", lblPhone: "Telefon Numarası", lblEmail: "E-posta Adresi", lblLevel: "Voleybol Seviyesi", lblPosition: "Tercih Edilen Pozisyon", regSubmit: "Kaydı Tamamla",
@@ -222,7 +221,10 @@
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId + 'Page').classList.add('active');
+            const targetPage = document.getElementById(pageId + 'Page');
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
             window.scrollTo(0,0);
             if (pageId === 'events') { fetchEvents(); }
             if (pageId === 'admin') { fetchPlayersForAdmin(); }
@@ -230,6 +232,7 @@
 
         async function fetchEvents() {
             const container = document.getElementById('eventsListContainer');
+            if (!container) return;
             container.innerHTML = `<p class="text-center text-xs text-zinc-500 py-8">Loading matches...</p>`;
 
             const { data, error } = await supabaseClient
@@ -243,7 +246,10 @@
                 return;
             }
 
-            document.getElementById('matchCountBadge').innerText = data.length + dictionary[currentLang].matchCount;
+            const badge = document.getElementById('matchCountBadge');
+            if (badge) {
+                badge.innerText = data.length + dictionary[currentLang].matchCount;
+            }
 
             if (data.length === 0) {
                 container.innerHTML = `<p class="text-center text-xs text-zinc-500 py-8">No active matches found.</p>`;
@@ -253,13 +259,14 @@
             container.innerHTML = data.map(event => {
                 const title = currentLang === 'en' ? (event.title_en || event.title) : event.title;
                 const hall = currentLang === 'en' ? (event.hall_name_en || event.hall_name) : event.hall_name;
+                const timeStr = event.event_time ? event.event_time.slice(0,5) : "00:00";
                 
                 return `
                 <div class="bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden shadow-lg">
                     <div class="h-32 w-full overflow-hidden relative bg-zinc-850">
                         <img src="https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover opacity-80">
                         <div class="absolute top-3 left-3"><span class="bg-zinc-950 text-blue-400 text-xs font-extrabold px-2 py-1 rounded-md border border-zinc-800">${event.level}</span></div>
-                        <div class="absolute top-3 right-3 bg-black/70 backdrop-blur-xs px-2 py-1 rounded-md text-white text-xs font-semibold border border-zinc-800/50">📅 ${event.event_date} - ${event.event_time.slice(0,5)}</div>
+                        <div class="absolute top-3 right-3 bg-black/70 backdrop-blur-xs px-2 py-1 rounded-md text-white text-xs font-semibold border border-zinc-800/50">📅 ${event.event_date} - ${timeStr}</div>
                     </div>
                     <div class="p-5">
                         <h3 class="text-base font-bold text-gray-100 mb-3">${title}</h3>
@@ -341,6 +348,7 @@
 
         async function fetchPlayersForAdmin() {
             const listDiv = document.getElementById('adminPlayersList');
+            if (!listDiv) return;
             const { data, error } = await supabaseClient.from('profiles').select('*').order('created_at', { ascending: false });
             if (error || data.length === 0) { listDiv.innerHTML = `<p class="text-zinc-500 text-center py-4">No players found.</p>`; return; }
             listDiv.innerHTML = `<h3 class="font-bold text-gray-200 mb-3 uppercase text-xs">Registered Athletes Dashboard</h3><div class="divide-y divide-zinc-800">` + data.map(p => `<div class="py-2 flex justify-between text-xs"><div><p class="font-bold">${p.name}</p><p class="text-[10px] text-zinc-500">${p.email}</p></div><div><span class="text-orange-400 font-bold">${p.level}</span></div></div>`).join('') + `</div>`;
@@ -348,18 +356,26 @@
 
         function genRandomUUID() { return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) { var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8); return v.toString(16); }); }
         
-        // Burası tamamen stabil hale getirildi
+        // Burası donma ve querySelector hatası vermeyecek şekilde tamamen sadeleştirildi
         function switchAdminTab(tabId) { 
-            if(tabId === 'createEvent') {
-                document.getElementById('tabCreateEvent').style.display = 'block';
-                document.getElementById('tabPlayers').style.display = 'none';
-            } else {
-                document.getElementById('tabCreateEvent').style.display = 'none';
-                document.getElementById('tabPlayers').style.display = 'block';
+            const tabEvent = document.getElementById('tabCreateEvent');
+            const tabPlayers = document.getElementById('tabPlayers');
+            if (tabEvent && tabPlayers) {
+                if(tabId === 'createEvent') {
+                    tabEvent.style.display = 'block';
+                    tabPlayers.style.display = 'none';
+                } else {
+                    tabEvent.style.display = 'none';
+                    tabPlayers.style.display = 'block';
+                }
             }
         }
         
-        function simulateAdminLogin() { document.getElementById('navAdminBtn').classList.remove('hidden'); showPage('admin'); }
+        function simulateAdminLogin() { 
+            const adminBtn = document.getElementById('navAdminBtn');
+            if (adminBtn) adminBtn.classList.remove('hidden'); 
+            showPage('admin'); 
+        }
         function handleJoinEvent(id) { alert("Joined match successfully!"); }
 
         function populateDropdowns() {
