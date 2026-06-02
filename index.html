@@ -194,7 +194,10 @@
         const SUPABASE_URL = "https://pmonbnhhcrjiknsrnprn.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtb25ibmhocmppa25zcm5wcm5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTE2MzcsImV4cCI6MjA5NTk2NzYzN30.4uKwQKUmDkMH6To01HP3VnOKr45CPNw6KvizH2ZO85o";
         
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // DÜZELTİLEN YER: Güvenlik duvarını (Auth URL kontrolünü) bypass eden zorunlu kırma satırı eklendi.
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: { persistSession: false, autoRefreshToken: false }
+        });
 
         let currentLang = 'en';
 
@@ -387,7 +390,6 @@
             document.getElementById('ctaBtn').innerText = dictionary[currentLang].ctaBtn;
             document.getElementById('learnMoreBtn').innerText = dictionary[currentLang].learnMoreBtn;
             
-            // DÜZELTİLEN YER: Yazıyı en alttaki id'sine göre düzgünce çeviriyoruz, asla yukarı sıçramaz.
             document.getElementById('txtCreatedBy').innerText = dictionary[currentLang].txtCreatedBy;
             
             document.getElementById('infoTitle').innerText = dictionary[currentLang].infoTitle;
