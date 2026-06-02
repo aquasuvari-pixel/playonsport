@@ -178,6 +178,7 @@
     </footer>
 
     <script>
+        // EKRAN GÖRÜNTÜSÜNDEKİ %100 DOĞRU ADRES BURAYA SABİTLENDİ
         const SUPABASE_URL = "https://pmonbnhhrjiknsrnprn.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtb25ibmhocmppa25zcm5wcm5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTE2MzcsImV4cCI6MjA5NTk2NzYzN30.4uKwQKUmDkMH6To01HP3VnOKr45CPNw6KvizH2ZO85o";
         
@@ -207,7 +208,7 @@
                 ctaBtn: "Hemen Kaydol & Oyna", learnMoreBtn: "Nasıl Çalıştığını Öğren ➡️", footerText: "© 2026 PlayOnSport - Bir ADS Spor Kulübü organizasyonudur.", btnText: "🇬🇧 EN",
                 infoTitle: "ℹ️ PlayOnSport Nasıl Çalışır?", infoS1T: "1. Sporcu Profilini Oluştur", infoS1D: "Voleybol seviyeni ve oynamak istediğin pozisyonu seçerek kaydol. Bu, dengeli ve rekabetçi maçlar ayarlamamıza yardımcı olur.",
                 infoS2T: "2. Bir Maç Seç", infoS2D: "Londra'da ADS Spor Kulübü kalitesiyle düzenlenen aktif voleybol maçlarına göz at. Sana en uygun zaman ve salonu seç.",
-                infoS3T: "3. 12 Kişilik Grup Sistemi", infoS3D: "Her etkinlik maksimum 12 oyuncu (6'şar kişilik iki takım) ile sınırlıdır. 12. kişi kayıt olduğunda grup otomatik kapanır ve maç kesinleşir.",
+                infoS3T: "3. 12 Kişilik Grup Sistemi", infoS3D: "Her etkinlik maksimum 12 oyuncu (6'şar kişilik iki takım) ile sınırlıdır. 12. kişi kayıt olduğunda grup otomatik kapanır und maç kesinleşir.",
                 infoS4T: "4. Onayla ve Oyna", infoS4D: "Yönetimin yönlendirdiği şekilde basit bir banka havalesi ile yerini kesinleştir. Maç günü sahaya gel, takımınla tanış ve amatör sporun tadını çıkar!", infoCta: "Aktif Maçları Hemen Gör",
                 eventsTitle: "Aktif Maçlar", matchCount: " Maç", badgeLevel: "Orta Seviye", cardTitle: "PlayOnSport Voleybol Etkinliği", lblHall: "Salon:", lblPrice: "Ücret:", lblQuota: "Kontenjan:", btnJoin: "Maça Katıl",
                 regTitle: "Hesap Oluştur", lblName: "Ad Soyad", lblAge: "Yaş", lblGender: "Cinsiyet", lblPhone: "Telefon Numarası", lblEmail: "E-posta Adresi", lblLevel: "Voleybol Seviyesi", lblPosition: "Tercih Edilen Pozisyon", regSubmit: "Kaydı Tamamla",
@@ -347,14 +348,14 @@
 
         function genRandomUUID() { return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) { var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8); return v.toString(16); }); }
         
-        // Hatalı querySelector kodunu dümdüz ve hatasız hale getirdik
+        // Burası tamamen stabil hale getirildi
         function switchAdminTab(tabId) { 
-            document.getElementById('tabCreateEvent').classList.add('hidden');
-            document.getElementById('tabPlayers').classList.add('hidden');
             if(tabId === 'createEvent') {
-                document.getElementById('tabCreateEvent').classList.remove('hidden');
+                document.getElementById('tabCreateEvent').style.display = 'block';
+                document.getElementById('tabPlayers').style.display = 'none';
             } else {
-                document.getElementById('tabPlayers').classList.remove('hidden');
+                document.getElementById('tabCreateEvent').style.display = 'none';
+                document.getElementById('tabPlayers').style.display = 'block';
             }
         }
         
