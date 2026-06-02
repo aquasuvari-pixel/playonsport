@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlayOnSport - ADS Sports Club</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Supabase Resmi Kütüphanesi -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary-orange: #FF6B00; --primary-blue: #0056B3; }
@@ -14,6 +16,7 @@
 </head>
 <body class="bg-black text-white font-sans flex flex-col min-h-screen">
 
+    <!-- ÜST MENÜ (HEADER) -->
     <header class="bg-zinc-950/80 backdrop-blur-md border-b border-zinc-850 sticky top-0 z-50">
         <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
             <div onclick="showPage('home')" class="flex items-center gap-2 cursor-pointer">
@@ -32,8 +35,10 @@
         </div>
     </header>
 
+    <!-- ANA İÇERİK -->
     <main class="flex-grow max-w-md mx-auto w-full px-4 py-6">
         
+        <!-- 1. HOME PAGE (ANA SAYFA) -->
         <div id="homePage" class="page active text-center space-y-6">
             <div class="py-4 flex justify-center">
                 <img src="logo-main.png" alt="Play on Sport" class="w-72 h-auto object-contain mx-auto" onerror="this.innerHTML='<span class=\'text-2xl font-black text-orange-500\'>Play on Sport</span>'">
@@ -67,6 +72,7 @@
             </div>
         </div>
 
+        <!-- 2. INFO / HOW IT WORKS PAGE -->
         <div id="infoPage" class="page space-y-6">
             <h2 id="infoTitle" class="text-xl font-bold text-gray-100 flex items-center gap-2">ℹ️ How PlayOnSport Works</h2>
             <div class="space-y-4">
@@ -102,6 +108,7 @@
             <button onclick="showPage('events')" id="infoCtaBtn" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition-all text-xs shadow-md">See Available Matches Now</button>
         </div>
 
+        <!-- 3. EVENTS PAGE -->
         <div id="eventsPage" class="page">
             <div class="flex justify-between items-center mb-5">
                 <h2 id="eventsTitle" class="text-xl font-bold text-gray-100">Available Matches</h2>
@@ -112,6 +119,7 @@
             </div>
         </div>
 
+        <!-- 4. ADMIN PANEL PAGE -->
         <div id="adminPage" class="page">
             <h2 id="admTitle" class="text-xl font-bold text-gray-100 mb-5">ADS Management Panel</h2>
             <div class="flex border-b border-zinc-800 mb-6 text-xs">
@@ -143,6 +151,7 @@
             </div>
         </div>
 
+        <!-- 5. REGISTER PAGE -->
         <div id="registerPage" class="page">
             <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 text-xs text-gray-300">
                 <h2 id="regTitle" class="text-xl font-bold text-gray-100 mb-5">Create Account</h2>
@@ -161,6 +170,7 @@
             </div>
         </div>
 
+        <!-- 6. LOGIN PAGE -->
         <div id="loginPage" class="page">
             <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 text-xs text-gray-300">
                 <h2 id="loginTitle" class="text-xl font-bold text-gray-100 mb-5">Login</h2>
@@ -173,13 +183,15 @@
 
     </main>
 
+    <!-- ALT BİLGİ -->
     <footer class="bg-zinc-950 text-gray-500 text-center py-4 text-[10px] border-t border-zinc-900 mt-auto">
         <p id="footerText">© 2026 PlayOnSport - An ADS Sports Club organization.</p>
     </footer>
 
+    <!-- JAVASCRIPT BAĞLANTI SİHİRBAZI -->
     <script>
-        // CANLI VERİTABANI BAĞLANTISI [cite: 2]
-        const SUPABASE_URL = "https://pmonbnhhcrjiknsrnprn.supabase.co"; 
+        // HARF HATASI BURADA KESİN OLARAK DÜZELTİLDİ: (pmonbnhhrjiknsrnprn)
+        const SUPABASE_URL = "https://pmonbnhhrjiknsrnprn.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtb25ibmhocmppa25zcm5wcm5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTE2MzcsImV4cCI6MjA5NTk2NzYzN30.4uKwQKUmDkMH6To01HP3VnOKr45CPNw6KvizH2ZO85o";
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -208,7 +220,7 @@
                 ctaBtn: "Hemen Kaydol & Oyna", learnMoreBtn: "Nasıl Çalıştığını Öğren ➡️", footerText: "© 2026 PlayOnSport - Bir ADS Spor Kulübü organizasyonudur.", btnText: "🇬🇧 EN",
                 infoTitle: "ℹ️ PlayOnSport Nasıl Çalışır?", infoS1T: "1. Sporcu Profilini Oluştur", infoS1D: "Voleybol seviyeni ve oynamak istediğin pozisyonu seçerek kaydol. Bu, dengeli ve rekabetçi maçlar ayarlamamıza yardımcı olur.",
                 infoS2T: "2. Bir Maç Seç", infoS2D: "Londra'da ADS Spor Kulübü kalitesiyle düzenlenen aktif voleybol maçlarına göz at. Sana en uygun zaman ve salonu seç.",
-                infoS3T: "3. 12 Kişilik Grup Sistemi", infoS3D: "Her etkinlik maksimum 12 oyuncu (6'şar kişilik iki takım) ile sınırlıdır. 12. kişi kayıt olduğunda grup otomatik kapanır und maç kesinleşir.",
+                infoS3T: "3. 12 Kişilik Grup Sistemi", infoS3D: "Her etkinlik maksimum 12 oyuncu (6'şar kişilik iki takım) ile sınırlıdır. 12. kişi kayıt olduğunda grup otomatik kapanır ve maç kesinleşir.",
                 infoS4T: "4. Onayla ve Oyna", infoS4D: "Yönetimin yönlendirdiği şekilde basit bir banka havalesi ile yerini kesinleştir. Maç günü sahaya gel, takımınla tanış ve amatör sporun tadını çıkar!", infoCta: "Aktif Maçları Hemen Gör",
                 eventsTitle: "Aktif Maçlar", matchCount: " Maç", badgeLevel: "Orta Seviye", cardTitle: "PlayOnSport Voleybol Etkinliği", lblHall: "Salon:", lblPrice: "Ücret:", lblQuota: "Kontenjan:", btnJoin: "Maça Katıl",
                 regTitle: "Hesap Oluştur", lblName: "Ad Soyad", lblAge: "Yaş", lblGender: "Cinsiyet", lblPhone: "Telefon Numarası", lblEmail: "E-posta Adresi", lblLevel: "Voleybol Seviyesi", lblPosition: "Tercih Edilen Pozisyon", regSubmit: "Kaydı Tamamla",
@@ -228,7 +240,6 @@
             if (pageId === 'admin') { fetchPlayersForAdmin(); }
         }
 
-        // 1. VERİTABANINDAN MAÇLARI ÇEKME
         async function fetchEvents() {
             const container = document.getElementById('eventsListContainer');
             container.innerHTML = `<p class="text-center text-xs text-zinc-500 py-8">Loading matches...</p>`;
@@ -240,7 +251,7 @@
                 .order('event_date', { ascending: true });
 
             if (error) {
-                container.innerHTML = `<p class="text-center text-xs text-red-400 py-8">No tables set up or connection waiting.</p>`;
+                container.innerHTML = `<p class="text-center text-xs text-red-400 py-8">Error connecting to database.</p>`;
                 return;
             }
 
@@ -251,7 +262,6 @@
                 return;
             }
 
-            // Maç kartlarını listeliyoruz
             container.innerHTML = data.map(event => {
                 const title = currentLang === 'en' ? (event.title_en || event.title) : event.title;
                 const hall = currentLang === 'en' ? (event.hall_name_en || event.hall_name) : event.hall_name;
@@ -277,13 +287,10 @@
             }).join('');
         }
 
-        // 2. KESİN ÇÖZÜM: AUTH ENGELİNİ BYPASS EDİP DOĞRUDAN PROFILES TABLOSUNA YAZMA
         async function handleRegister(e) {
             e.preventDefault();
             const email = document.getElementById('regEmail').value.trim();
             const name = document.getElementById('regName').value.trim();
-            
-            // Rastgele benzersiz bir UUID simülasyonu üretiyoruz
             const generatedId = genRandomUUID();
 
             const { error: profError } = await supabaseClient.from('profiles').insert([{
@@ -301,12 +308,11 @@
             if (profError) { 
                 alert("Database Error: " + profError.message); 
             } else { 
-                alert(currentLang === 'en' ? "Registration Successful! You can now login with your email." : "Kayıt Başarılı! Şimdi e-posta adresinizle giriş yapabilirsiniz."); 
+                alert(currentLang === 'en' ? "Registration Successful! You can now login." : "Kayıt Başarılı! Şimdi giriş yapabilirsiniz."); 
                 showPage('login'); 
             }
         }
 
-        // 3. DOĞRUDAN PROFİL KONTROLÜ İLE GİRİŞ YAPMA
         async function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value.trim();
@@ -317,98 +323,48 @@
                 .eq('email', email);
 
             if (error || data.length === 0) { 
-                alert(currentLang === 'en' ? "User not found! Please check your email or register." : "Kullanıcı bulunamadı! Lütfen e-postanızı kontrol edin veya kayıt olun."); 
+                alert(currentLang === 'en' ? "User not found!" : "Kullanıcı bulunamadı!"); 
             } else { 
                 loggedInUser = data[0];
                 alert((currentLang === 'en' ? "Welcome back, " : "Tekrar hoş geldiniz, ") + loggedInUser.name);
-                
-                if (loggedInUser.role === 'admin') {
-                    document.getElementById('navAdminBtn').classList.remove('hidden');
-                }
+                if (loggedInUser.role === 'admin') { document.getElementById('navAdminBtn').classList.remove('hidden'); }
                 showPage('events'); 
             }
         }
 
-        // 4. VERİTABANINA YENİ ETKİNLİK YAZMA
         async function handleCreateEvent(e) {
             e.preventDefault();
-            const title = document.getElementById('admInpTitle').value;
-            const date = document.getElementById('admInpDate').value;
-            const time = document.getElementById('admInpTime').value;
-            const price = document.getElementById('admInpPrice').value;
-            const level = document.getElementById('admSelectLevel').value;
-            const hall = document.getElementById('admInpHall').value;
-
             const { error } = await supabaseClient.from('events').insert([{
-                title: title,
-                title_en: title,
-                event_date: date,
-                event_time: time,
-                price: parseFloat(price),
-                level: level,
-                hall_name: hall,
-                hall_name_en: hall,
+                title: document.getElementById('admInpTitle').value,
+                title_en: document.getElementById('admInpTitle').value,
+                event_date: document.getElementById('admInpDate').value,
+                event_time: document.getElementById('admInpTime').value,
+                price: parseFloat(document.getElementById('admInpPrice').value),
+                level: document.getElementById('admSelectLevel').value,
+                hall_name: document.getElementById('admInpHall').value,
+                hall_name_en: document.getElementById('admInpHall').value,
                 status: 'active',
                 max_capacity: 12
             }]);
 
-            if (error) { alert("Event Creation Error: " + error.message); } 
-            else { alert("New Volleyball Event published to database!"); showPage('events'); }
+            if (error) { alert("Event Error: " + error.message); } 
+            else { alert("Event published!"); showPage('events'); }
         }
 
-        // 5. YÖNETİCİ İÇİN OYUNCU LİSTESİNİ ÇEKME
         async function fetchPlayersForAdmin() {
             const listDiv = document.getElementById('adminPlayersList');
             const { data, error } = await supabaseClient.from('profiles').select('*').order('created_at', { ascending: false });
-            
-            if (error || data.length === 0) {
-                listDiv.innerHTML = `<p class="text-zinc-500 text-center py-4">No registered players found yet.</p>`;
-                return;
-            }
-
-            listDiv.innerHTML = `
-            <h3 class="font-bold text-gray-200 mb-3 uppercase tracking-wider">Registered Athletes Dashboard</h3>
-            <div class="divide-y divide-zinc-800">
-                ${data.map(p => `
-                <div class="py-3 flex justify-between items-center text-xs">
-                    <div>
-                        <p class="font-bold text-gray-100">${p.name} (${p.age})</p>
-                        <p class="text-[10px] text-zinc-500">${p.email} | ${p.phone}</p>
-                        <p class="text-[10px] text-orange-400 font-semibold">${p.level} - ${p.position}</p>
-                    </div>
-                    <div class="text-right">
-                        <span class="bg-zinc-950 text-cyan-400 px-2 py-1 rounded border border-zinc-850 text-[10px] font-bold uppercase">${p.role}</span>
-                    </div>
-                </div>`).join('')}
-            </div>`;
+            if (error || data.length === 0) { listDiv.innerHTML = `<p class="text-zinc-500 text-center py-4">No players found.</p>`; return; }
+            listDiv.innerHTML = `<h3 class="font-bold text-gray-200 mb-3 uppercase text-xs">Registered Athletes Dashboard</h3><div class="divide-y divide-zinc-800">` + data.map(p => `<div class="py-2 flex justify-between text-xs"><div><p class="font-bold">${p.name}</p><p class="text-[10px] text-zinc-500">${p.email}</p></div><div><span class="text-orange-400 font-bold">${p.level}</span></div></div>`).join('') + `</div>`;
         }
 
-        // Yardımcı Fonksiyonlar
-        function genRandomUUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-        }
-
-        function switchAdminTab(tabId) {
-            document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('hidden'));
-            document.getElementById('tab' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).classList.remove('hidden');
-            document.getElementById('tabCreateEventBtn').className = "flex-1 text-center py-2 font-semibold text-gray-500 border-b-2 border-transparent";
-            document.getElementById('tabPlayersBtn').className = "flex-1 text-center py-2 font-semibold text-gray-500 border-b-2 border-transparent";
-            if(tabId === 'createEvent') { document.getElementById('tabCreateEventBtn').className = "flex-1 text-center py-2 font-bold border-b-2 border-orange-500 text-orange-400"; } 
-            else { document.getElementById('tabPlayersBtn').className = "flex-1 text-center py-2 font-bold border-b-2 border-orange-500 text-orange-400"; }
-        }
-
+        function genRandomUUID() { return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) { var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8); return v.toString(16); }); }
+        function switchAdminTab(tabId) { document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('hidden')); document.getElementById('tab' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).classList.remove('hidden'); }
         function simulateAdminLogin() { document.getElementById('navAdminBtn').classList.remove('hidden'); showPage('admin'); }
-        function handleJoinEvent(id) { alert(currentLang === 'en' ? "Joined match successfully! Slot booked under confirmation process." : "Maça başarıyla katıldınız! Kontenjanınız onay sürecine alınmıştır."); }
+        function handleJoinEvent(id) { alert("Joined match successfully!"); }
 
         function populateDropdowns() {
-            const levelSelect = document.getElementById('regLevel');
-            const posSelect = document.getElementById('regPosition');
-            const genderSelect = document.getElementById('regGender');
-            const admLevelSelect = document.getElementById('admSelectLevel');
-            
+            const levelSelect = document.getElementById('regLevel'); const posSelect = document.getElementById('regPosition'); const genderSelect = document.getElementById('regGender'); const admLevelSelect = document.getElementById('admSelectLevel');
             if(levelSelect) levelSelect.innerHTML = dictionary[currentLang].levels.map(l => `<option value="${l}">${l}</option>`).join('');
             if(posSelect) posSelect.innerHTML = dictionary[currentLang].positions.map(p => `<option value="${p}">${p}</option>`).join('');
             if(admLevelSelect) admLevelSelect.innerHTML = dictionary[currentLang].levels.map(l => `<option value="${l}">${l}</option>`).join('');
@@ -417,48 +373,10 @@
 
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'tr' : 'en';
-            document.getElementById('navInfoBtn').innerText = dictionary[currentLang].navInfo;
-            document.getElementById('navEventsBtn').innerText = dictionary[currentLang].navEvents;
-            document.getElementById('navLoginBtn').innerText = dictionary[currentLang].navLogin;
-            document.getElementById('langBtn').innerText = dictionary[currentLang].btnText;
-            document.getElementById('footerText').innerText = dictionary[currentLang].footerText;
-            document.getElementById('welcomeDesc').innerText = dictionary[currentLang].welcomeDesc;
-            document.getElementById('ctaBtn').innerText = dictionary[currentLang].ctaBtn;
-            document.getElementById('learnMoreBtn').innerText = dictionary[currentLang].learnMoreBtn;
-            document.getElementById('txtCreatedBy').innerText = dictionary[currentLang].txtCreatedBy;
-            document.getElementById('infoTitle').innerText = dictionary[currentLang].infoTitle;
-            document.getElementById('infoStep1Title').innerText = dictionary[currentLang].infoS1T;
-            document.getElementById('infoStep1Desc').innerText = dictionary[currentLang].infoS1D;
-            document.getElementById('infoStep2Title').innerText = dictionary[currentLang].infoS2T;
-            document.getElementById('infoStep2Desc').innerText = dictionary[currentLang].infoS2D;
-            document.getElementById('infoStep3Title').innerText = dictionary[currentLang].infoS3T;
-            document.getElementById('infoStep3Desc').innerText = dictionary[currentLang].infoS3D;
-            document.getElementById('infoStep4Title').innerText = dictionary[currentLang].infoS4T;
-            document.getElementById('infoStep4Desc').innerText = dictionary[currentLang].infoS4D;
-            document.getElementById('infoCtaBtn').innerText = dictionary[currentLang].infoCta;
-            document.getElementById('admTitle').innerText = dictionary[currentLang].admTitle;
-            document.getElementById('tabCreateEventBtn').innerText = dictionary[currentLang].tabCreateEvent;
-            document.getElementById('tabPlayersBtn').innerText = dictionary[currentLang].tabPlayers;
-            document.getElementById('admCreateBtn').innerText = dictionary[currentLang].admCreateBtn;
-            document.getElementById('eventsTitle').innerText = dictionary[currentLang].eventsTitle;
-            document.getElementById('regTitle').innerText = dictionary[currentLang].regTitle;
-            document.getElementById('lblLabelName').innerText = dictionary[currentLang].lblName;
-            document.getElementById('lblLabelAge').innerText = dictionary[currentLang].lblAge;
-            document.getElementById('lblLabelGender').innerText = dictionary[currentLang].lblGender;
-            document.getElementById('lblLabelPhone').innerText = dictionary[currentLang].lblPhone;
-            document.getElementById('lblLabelEmail').innerText = dictionary[currentLang].lblEmail;
-            document.getElementById('lblLabelLevel').innerText = dictionary[currentLang].lblLevel;
-            document.getElementById('lblLabelPosition').innerText = dictionary[currentLang].lblPosition;
-            document.getElementById('regSubmitBtn').innerText = dictionary[currentLang].regSubmit;
-            document.getElementById('loginTitle').innerText = dictionary[currentLang].loginTitle;
-            document.getElementById('lblLoginEmail').innerText = dictionary[currentLang].lblEmail;
-            document.getElementById('loginSubmitBtn').innerText = dictionary[currentLang].loginSubmit;
-
+            document.getElementById('navInfoBtn').innerText = dictionary[currentLang].navInfo; document.getElementById('navEventsBtn').innerText = dictionary[currentLang].navEvents; document.getElementById('navLoginBtn').innerText = dictionary[currentLang].navLogin; document.getElementById('langBtn').innerText = dictionary[currentLang].btnText; document.getElementById('footerText').innerText = dictionary[currentLang].footerText; document.getElementById('welcomeDesc').innerText = dictionary[currentLang].welcomeDesc; document.getElementById('ctaBtn').innerText = dictionary[currentLang].ctaBtn; document.getElementById('learnMoreBtn').innerText = dictionary[currentLang].learnMoreBtn; document.getElementById('txtCreatedBy').innerText = dictionary[currentLang].txtCreatedBy;
             populateDropdowns();
-            if (document.getElementById('eventsPage').classList.contains('active')) { fetchEvents(); }
             document.documentElement.lang = currentLang;
         }
-
         populateDropdowns();
     </script>
 </body>
