@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlayOnSport - ADS Sports Club</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Supabase Resmi Kütüphanesi -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary-orange: #FF6B00; --primary-blue: #0056B3; }
@@ -16,7 +14,6 @@
 </head>
 <body class="bg-black text-white font-sans flex flex-col min-h-screen">
 
-    <!-- ÜST MENÜ (HEADER) -->
     <header class="bg-zinc-950/80 backdrop-blur-md border-b border-zinc-850 sticky top-0 z-50">
         <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
             <div onclick="showPage('home')" class="flex items-center gap-2 cursor-pointer">
@@ -35,10 +32,8 @@
         </div>
     </header>
 
-    <!-- ANA İÇERİK -->
     <main class="flex-grow max-w-md mx-auto w-full px-4 py-6">
         
-        <!-- 1. HOME PAGE (ANA SAYFA) -->
         <div id="homePage" class="page active text-center space-y-6">
             <div class="py-4 flex justify-center">
                 <img src="logo-main.png" alt="Play on Sport" class="w-72 h-auto object-contain mx-auto" onerror="this.innerHTML='<span class=\'text-2xl font-black text-orange-500\'>Play on Sport</span>'">
@@ -72,7 +67,6 @@
             </div>
         </div>
 
-        <!-- 2. INFO / HOW IT WORKS PAGE -->
         <div id="infoPage" class="page space-y-6">
             <h2 id="infoTitle" class="text-xl font-bold text-gray-100 flex items-center gap-2">ℹ️ How PlayOnSport Works</h2>
             <div class="space-y-4">
@@ -108,7 +102,6 @@
             <button onclick="showPage('events')" id="infoCtaBtn" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition-all text-xs shadow-md">See Available Matches Now</button>
         </div>
 
-        <!-- 3. EVENTS PAGE -->
         <div id="eventsPage" class="page">
             <div class="flex justify-between items-center mb-5">
                 <h2 id="eventsTitle" class="text-xl font-bold text-gray-100">Available Matches</h2>
@@ -119,7 +112,6 @@
             </div>
         </div>
 
-        <!-- 4. ADMIN PANEL PAGE -->
         <div id="adminPage" class="page">
             <h2 id="admTitle" class="text-xl font-bold text-gray-100 mb-5">ADS Management Panel</h2>
             <div class="flex border-b border-zinc-800 mb-6 text-xs">
@@ -151,7 +143,6 @@
             </div>
         </div>
 
-        <!-- 5. REGISTER PAGE -->
         <div id="registerPage" class="page">
             <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 text-xs text-gray-300">
                 <h2 id="regTitle" class="text-xl font-bold text-gray-100 mb-5">Create Account</h2>
@@ -170,7 +161,6 @@
             </div>
         </div>
 
-        <!-- 6. LOGIN PAGE -->
         <div id="loginPage" class="page">
             <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 text-xs text-gray-300">
                 <h2 id="loginTitle" class="text-xl font-bold text-gray-100 mb-5">Login</h2>
@@ -183,14 +173,11 @@
 
     </main>
 
-    <!-- ALT BİLGİ -->
     <footer class="bg-zinc-950 text-gray-500 text-center py-4 text-[10px] border-t border-zinc-900 mt-auto">
         <p id="footerText">© 2026 PlayOnSport - An ADS Sports Club organization.</p>
     </footer>
 
-    <!-- JAVASCRIPT BAĞLANTI SİHİRBAZI -->
     <script>
-        // HARF HATASI BURADA KESİN OLARAK DÜZELTİLDİ: (pmonbnhhrjiknsrnprn)
         const SUPABASE_URL = "https://pmonbnhhrjiknsrnprn.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtb25ibmhocmppa25zcm5wcm5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTE2MzcsImV4cCI6MjA5NTk2NzYzN30.4uKwQKUmDkMH6To01HP3VnOKr45CPNw6KvizH2ZO85o";
         
@@ -251,7 +238,7 @@
                 .order('event_date', { ascending: true });
 
             if (error) {
-                container.innerHTML = `<p class="text-center text-xs text-red-400 py-8">Error connecting to database.</p>`;
+                container.innerHTML = `<p class="text-center text-xs text-red-400 py-8">Error loading data.</p>`;
                 return;
             }
 
@@ -359,21 +346,44 @@
         }
 
         function genRandomUUID() { return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) { var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8); return v.toString(16); }); }
-        function switchAdminTab(tabId) { document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('hidden')); document.getElementById('tab' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).classList.remove('hidden'); }
+        
+        // Hatalı querySelector kodunu dümdüz ve hatasız hale getirdik
+        function switchAdminTab(tabId) { 
+            document.getElementById('tabCreateEvent').classList.add('hidden');
+            document.getElementById('tabPlayers').classList.add('hidden');
+            if(tabId === 'createEvent') {
+                document.getElementById('tabCreateEvent').classList.remove('hidden');
+            } else {
+                document.getElementById('tabPlayers').classList.remove('hidden');
+            }
+        }
+        
         function simulateAdminLogin() { document.getElementById('navAdminBtn').classList.remove('hidden'); showPage('admin'); }
         function handleJoinEvent(id) { alert("Joined match successfully!"); }
 
         function populateDropdowns() {
-            const levelSelect = document.getElementById('regLevel'); const posSelect = document.getElementById('regPosition'); const genderSelect = document.getElementById('regGender'); const admLevelSelect = document.getElementById('admSelectLevel');
+            const levelSelect = document.getElementById('regLevel'); 
+            const posSelect = document.getElementById('regPosition'); 
+            const genderSelect = document.getElementById('regGender'); 
+            const admLevelSelect = document.getElementById('admSelectLevel');
+            
             if(levelSelect) levelSelect.innerHTML = dictionary[currentLang].levels.map(l => `<option value="${l}">${l}</option>`).join('');
             if(posSelect) posSelect.innerHTML = dictionary[currentLang].positions.map(p => `<option value="${p}">${p}</option>`).join('');
             if(admLevelSelect) admLevelSelect.innerHTML = dictionary[currentLang].levels.map(l => `<option value="${l}">${l}</option>`).join('');
-            if(genderSelect) genderSelect.innerHTML = dictionary[currentLang].genders.map((g, i) => `<option value="${i===0?'Male':'Female'}">${g}</option>`).join('');
+            if(genderSelect) genderSelect.innerHTML = dictionary[currentLang].genders.map(g => `<option value="${g}">${g}</option>`).join('');
         }
 
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'tr' : 'en';
-            document.getElementById('navInfoBtn').innerText = dictionary[currentLang].navInfo; document.getElementById('navEventsBtn').innerText = dictionary[currentLang].navEvents; document.getElementById('navLoginBtn').innerText = dictionary[currentLang].navLogin; document.getElementById('langBtn').innerText = dictionary[currentLang].btnText; document.getElementById('footerText').innerText = dictionary[currentLang].footerText; document.getElementById('welcomeDesc').innerText = dictionary[currentLang].welcomeDesc; document.getElementById('ctaBtn').innerText = dictionary[currentLang].ctaBtn; document.getElementById('learnMoreBtn').innerText = dictionary[currentLang].learnMoreBtn; document.getElementById('txtCreatedBy').innerText = dictionary[currentLang].txtCreatedBy;
+            document.getElementById('navInfoBtn').innerText = dictionary[currentLang].navInfo; 
+            document.getElementById('navEventsBtn').innerText = dictionary[currentLang].navEvents; 
+            document.getElementById('navLoginBtn').innerText = dictionary[currentLang].navLogin; 
+            document.getElementById('langBtn').innerText = dictionary[currentLang].btnText; 
+            document.getElementById('footerText').innerText = dictionary[currentLang].footerText; 
+            document.getElementById('welcomeDesc').innerText = dictionary[currentLang].welcomeDesc; 
+            document.getElementById('ctaBtn').innerText = dictionary[currentLang].ctaBtn; 
+            document.getElementById('learnMoreBtn').innerText = dictionary[currentLang].learnMoreBtn; 
+            document.getElementById('txtCreatedBy').innerText = dictionary[currentLang].txtCreatedBy;
             populateDropdowns();
             document.documentElement.lang = currentLang;
         }
