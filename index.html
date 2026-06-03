@@ -178,8 +178,7 @@
     </footer>
 
     <script>
-        // DOĞRU SUPABASE ADRESİ BURADA GÜNCELLENDİ
-        const SUPABASE_URL = "https://project/pmonbnhhrjiknsrnprnr.supabase.co"; 
+        const SUPABASE_URL = "https://pmonbnhhrjiknsrnprn.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtb25ibmhocmppa25zcm5wcm5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTE2MzcsImV4cCI6MjA5NTk2NzYzN30.4uKwQKUmDkMH6To01HP3VnOKr45CPNw6KvizH2ZO85o";
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -223,9 +222,7 @@
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const targetPage = document.getElementById(pageId + 'Page');
-            if (targetPage) {
-                targetPage.classList.add('active');
-            }
+            if (targetPage) targetPage.classList.add('active');
             window.scrollTo(0,0);
             if (pageId === 'events') { fetchEvents(); }
             if (pageId === 'admin') { fetchPlayersForAdmin(); }
@@ -248,9 +245,7 @@
             }
 
             const badge = document.getElementById('matchCountBadge');
-            if (badge) {
-                badge.innerText = data.length + dictionary[currentLang].matchCount;
-            }
+            if (badge) badge.innerText = data.length + dictionary[currentLang].matchCount;
 
             if (data.length === 0) {
                 container.innerHTML = `<p class="text-center text-xs text-zinc-500 py-8">No active matches found.</p>`;
@@ -283,22 +278,19 @@
             }).join('');
         }
 
+        // DÜZELTİLEN YER: Sadece kesin olan sütunları göndererek tablo uyuşmazlığı hatasını sıfıra indiriyoruz.
         async function handleRegister(e) {
             e.preventDefault();
             const email = document.getElementById('regEmail').value.trim();
             const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
             const generatedId = genRandomUUID();
 
             const { error: profError } = await supabaseClient.from('profiles').insert([{
                 id: generatedId,
                 name: name,
-                phone: document.getElementById('regPhone').value,
                 email: email,
-                age: parseInt(document.getElementById('regAge').value),
-                gender: document.getElementById('regGender').value,
-                level: document.getElementById('regLevel').value,
-                position: document.getElementById('regPosition').value,
-                role: 'user'
+                phone: phone
             }]);
 
             if (profError) { 
@@ -323,7 +315,6 @@
             } else { 
                 loggedInUser = data[0];
                 alert((currentLang === 'en' ? "Welcome back, " : "Tekrar hoş geldiniz, ") + loggedInUser.name);
-                if (loggedInUser.role === 'admin') { document.getElementById('navAdminBtn').classList.remove('hidden'); }
                 showPage('events'); 
             }
         }
@@ -352,12 +343,11 @@
             if (!listDiv) return;
             const { data, error } = await supabaseClient.from('profiles').select('*').order('created_at', { ascending: false });
             if (error || data.length === 0) { listDiv.innerHTML = `<p class="text-zinc-500 text-center py-4">No players found.</p>`; return; }
-            listDiv.innerHTML = `<h3 class="font-bold text-gray-200 mb-3 uppercase text-xs">Registered Athletes Dashboard</h3><div class="divide-y divide-zinc-800">` + data.map(p => `<div class="py-2 flex justify-between text-xs"><div><p class="font-bold">${p.name}</p><p class="text-[10px] text-zinc-500">${p.email}</p></div><div><span class="text-orange-400 font-bold">${p.level}</span></div></div>`).join('') + `</div>`;
+            listDiv.innerHTML = `<h3 class="font-bold text-gray-200 mb-3 uppercase text-xs">Registered Athletes Dashboard</h3><div class="divide-y divide-zinc-800">` + data.map(p => `<div class="py-2 flex justify-between text-xs"><div><p class="font-bold">${p.name}</p><p class="text-[10px] text-zinc-500">${p.email}</p></div></div>`).join('') + `</div>`;
         }
 
         function genRandomUUID() { return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) { var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8); return v.toString(16); }); }
         
-        // Hatalı querySelector kodunu tamamen elemente erişim mantığına çektik, donma kesin çözüldü
         function switchAdminTab(tabId) { 
             const tabEvent = document.getElementById('tabCreateEvent');
             const tabPlayers = document.getElementById('tabPlayers');
