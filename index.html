@@ -122,7 +122,7 @@
             <div class="flex border-b border-zinc-800 mb-6 text-xs">
                 <button onclick="switchAdminTab('createEvent')" id="tabCreateEventBtn" class="flex-1 text-center py-2 font-bold border-b-2 border-orange-500 text-orange-400">New Event</button>
                 <button onclick="switchAdminTab('players')" id="tabPlayersBtn" class="flex-1 text-center py-2 font-semibold text-gray-500 border-b-2 border-transparent">Payments & Groups</button>
-                <button onclick="switchAdminTab('manageEvents')" id="tabManageEventsBtn" class="flex-1 text-center py-2 font-semibold text-gray-500 border-b-2 border-transparent">Manage Events</button>
+                <button onclick="switchAdminTab('eventsManage')" id="tabEventsManageBtn" class="flex-1 text-center py-2 font-semibold text-gray-500 border-b-2 border-transparent">Events</button>
             </div>
             <div id="tabCreateEvent" class="admin-tab space-y-4">
                 <form onsubmit="handleCreateEvent(event)" class="space-y-4 bg-zinc-900 p-5 rounded-2xl border border-zinc-800 text-xs text-gray-300">
@@ -147,7 +147,7 @@
                     <p class="text-zinc-500 text-center py-4">Loading tracking dashboard...</p>
                 </div>
             </div>
-            <div id="tabManageEvents" class="admin-tab hidden space-y-4">
+            <div id="tabEventsManage" class="admin-tab hidden space-y-4">
                 <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 text-xs" id="adminEventsList">
                     <p class="text-zinc-500 text-center py-4">Loading events dashboard...</p>
                 </div>
@@ -273,7 +273,7 @@
                     showPage('login');
                     return;
                 }
-                switchAdminTab('manageEvents');
+                fetchPlayersForAdmin();
             }
         }
 
@@ -416,7 +416,7 @@
             }]);
 
             if (error) { alert("Event Error: " + error.message); } 
-            else { alert("Event published!"); switchAdminTab('manageEvents'); }
+            else { alert("Event published!"); switchAdminTab('eventsManage'); }
         }
 
         async function fetchPlayersForAdmin() {
@@ -601,210 +601,118 @@
             if (!listDiv) return;
 
             if (!isAdminUser()) {
-                listDiv.innerHTML = `<p class="text-red-400 text-center py-4">Admin access required.</p>`;
+                listDiv.innerHTML = '<p class="text-red-400 text-center py-4">Admin access required.</p>';
                 return;
             }
 
-            const { data, error } = await supabaseClient
+            listDiv.innerHTML = '<p class="text-zinc-500 text-center py-4">Loading events...</p>';
+
+            const result = await supabaseClient
                 .from('events')
                 .select('*')
                 .order('event_date', { ascending: false });
 
-            if (error) {
-                listDiv.innerHTML = `<p class="text-red-400 text-center py-4">Event list error: ${error.message}</p>`;
+            if (result.error) {
+                listDiv.innerHTML = '<p class="text-red-400 text-center py-4">Event list error: ' + result.error.message + '</p>';
                 return;
             }
 
-            if (!data || data.length === 0) {
-                listDiv.innerHTML = `<p class="text-zinc-500 text-center py-4">No events found.</p>`;
+            const data = result.data || [];
+            if (data.length === 0) {
+                listDiv.innerHTML = '<p class="text-zinc-500 text-center py-4">No events found.</p>';
                 return;
             }
 
-            listDiv.innerHTML = `
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="font-bold text-gray-200 uppercase text-xs">Manage Events</h3>
-                    <button onclick="fetchEventsForAdmin()" class="bg-zinc-800 hover:bg-zinc-700 text-white px-2 py-1 rounded text-[10px]">Refresh</button>
-                </div>
-                <div class="space-y-4">
-                    ${data.map(ev => {
-                        const id = ev.id || '';
-                        const status = ev.status || 'active';
-                        return `
-                            <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-xs space-y-3">
-                                <div>
-                                    <p class="font-bold text-gray-100">${escapeHtml(ev.title || ev.title_en || 'No title')}</p>
-                                    <p class="text-[10px] text-zinc-500">${escapeHtml(ev.event_date || '')} - ${escapeHtml((ev.event_time || '').slice(0,5))}</p>
-                                    <p class="text-[10px] text-zinc-500">${escapeHtml(ev.hall_name || ev.hall_name_en || '')}</p>
-                                    <p class="text-[10px] text-zinc-600">ID: ${escapeHtml(id)}</p>
-                                </div>
+            let htmlText = '';
+            htmlText += '<div class="flex justify-between items-center mb-3">';
+            htmlText += '<h3 class="font-bold text-gray-200 uppercase text-xs">Manage Events</h3>';
+            htmlText += '<button onclick="fetchEventsForAdmin()" class="bg-zinc-800 hover:bg-zinc-700 text-white px-2 py-1 rounded text-[10px]">Refresh</button>';
+            htmlText += '</div>';
+            htmlText += '<div class="space-y-4">';
 
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-[10px] text-zinc-500 mb-1 uppercase font-bold">Title</label>
-                                        <input id="evtitle_${id}" type="text" value="${escapeHtml(ev.title || '')}" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-white">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] text-zinc-500 mb-1 uppercase font-bold">Level</label>
-                                        <input id="evlevel_${id}" type="text" value="${escapeHtml(ev.level || '')}" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-white">
-                                    </div>
-                                </div>
+            data.forEach(function(ev) {
+                const id = ev.id || '';
+                htmlText += '<div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-xs space-y-3">';
+                htmlText += '<div>';
+                htmlText += '<p class="font-bold text-gray-100">' + escapeHtml(ev.title || ev.title_en || 'No title') + '</p>';
+                htmlText += '<p class="text-[10px] text-zinc-500">' + escapeHtml(ev.event_date || '') + ' - ' + escapeHtml((ev.event_time || '').slice(0,5)) + '</p>';
+                htmlText += '<p class="text-[10px] text-zinc-500">' + escapeHtml(ev.hall_name || ev.hall_name_en || '') + '</p>';
+                htmlText += '<p class="text-[10px] text-zinc-600">Status: ' + escapeHtml(ev.status || '') + '</p>';
+                htmlText += '</div>';
+                htmlText += '<div class="grid grid-cols-3 gap-2">';
+                htmlText += '<button onclick="activateEventAdmin(&quot;' + id + '&quot;)" class="bg-green-700 hover:bg-green-800 text-white font-bold py-2 rounded-xl text-xs">Active</button>';
+                htmlText += '<button onclick="hideEventAdmin(&quot;' + id + '&quot;)" class="bg-yellow-700 hover:bg-yellow-800 text-white font-bold py-2 rounded-xl text-xs">Hide</button>';
+                htmlText += '<button onclick="deleteEventAdmin(&quot;' + id + '&quot;)" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 rounded-xl text-xs">Delete</button>';
+                htmlText += '</div>';
+                htmlText += '</div>';
+            });
 
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-[10px] text-zinc-500 mb-1 uppercase font-bold">Date</label>
-                                        <input id="evdate_${id}" type="date" value="${escapeHtml(ev.event_date || '')}" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-white">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] text-zinc-500 mb-1 uppercase font-bold">Time</label>
-                                        <input id="evtime_${id}" type="time" value="${escapeHtml((ev.event_time || '').slice(0,5))}" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-white">
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-[10px] text-zinc-500 mb-1 uppercase font-bold">Price £</label>
-                                        <input id="evprice_${id}" type="number" step="0.01" value="${escapeHtml(String(ev.price ?? ''))}" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-white">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] text-zinc-500 mb-1 uppercase font-bold">Capacity</label>
-                                        <input id="evcapacity_${id}" type="number" value="${escapeHtml(String(ev.max_capacity ?? 12))}" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-white">
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-[10px] text-zinc-500 mb-1 uppercase font-bold">Hall</label>
-                                    <input id="evhall_${id}" type="text" value="${escapeHtml(ev.hall_name || '')}" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-white">
-                                </div>
-
-                                <div>
-                                    <label class="block text-[10px] text-zinc-500 mb-1 uppercase font-bold">Status</label>
-                                    <select id="evstatus_${id}" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-white">
-                                        <option value="active" ${status === 'active' ? 'selected' : ''}>Active</option>
-                                        <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>Cancelled / Hidden</option>
-                                        <option value="completed" ${status === 'completed' ? 'selected' : ''}>Completed</option>
-                                    </select>
-                                </div>
-
-                                <div class="grid grid-cols-3 gap-2">
-                                    <button onclick="updateEventAdmin('${id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-xs">Save</button>
-                                    <button onclick="cancelEventAdmin('${id}')" class="bg-yellow-700 hover:bg-yellow-800 text-white font-bold py-2 rounded-xl text-xs">Hide</button>
-                                    <button onclick="deleteEventAdmin('${id}')" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 rounded-xl text-xs">Delete</button>
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            `;
+            htmlText += '</div>';
+            listDiv.innerHTML = htmlText;
         }
 
-        async function updateEventAdmin(eventId) {
-            if (!eventId) return alert('Event ID not found.');
+        async function activateEventAdmin(eventId) {
             if (!isAdminUser()) return alert('Admin access required.');
-
-            const updateData = {
-                title: document.getElementById('evtitle_' + eventId)?.value || '',
-                title_en: document.getElementById('evtitle_' + eventId)?.value || '',
-                event_date: document.getElementById('evdate_' + eventId)?.value || null,
-                event_time: document.getElementById('evtime_' + eventId)?.value || null,
-                price: parseFloat(document.getElementById('evprice_' + eventId)?.value || '0'),
-                max_capacity: parseInt(document.getElementById('evcapacity_' + eventId)?.value || '12'),
-                level: document.getElementById('evlevel_' + eventId)?.value || '',
-                hall_name: document.getElementById('evhall_' + eventId)?.value || '',
-                hall_name_en: document.getElementById('evhall_' + eventId)?.value || '',
-                status: document.getElementById('evstatus_' + eventId)?.value || 'active'
-            };
-
-            const { error } = await supabaseClient
-                .from('events')
-                .update(updateData)
-                .eq('id', eventId);
-
-            if (error) return alert('Event update error: ' + error.message);
-
-            alert('Event updated.');
+            const result = await supabaseClient.from('events').update({ status: 'active' }).eq('id', eventId);
+            if (result.error) return alert('Event update error: ' + result.error.message);
+            alert('Event activated.');
             fetchEventsForAdmin();
         }
 
-        async function cancelEventAdmin(eventId) {
-            if (!eventId) return alert('Event ID not found.');
+        async function hideEventAdmin(eventId) {
             if (!isAdminUser()) return alert('Admin access required.');
             if (!confirm('Bu maçı kullanıcı ekranından kaldırmak istiyor musun?')) return;
-
-            const { error } = await supabaseClient
-                .from('events')
-                .update({ status: 'cancelled' })
-                .eq('id', eventId);
-
-            if (error) return alert('Event hide error: ' + error.message);
-
+            const result = await supabaseClient.from('events').update({ status: 'cancelled' }).eq('id', eventId);
+            if (result.error) return alert('Event hide error: ' + result.error.message);
             alert('Maç yayından kaldırıldı.');
             fetchEventsForAdmin();
-            fetchEvents();
         }
 
         async function deleteEventAdmin(eventId) {
-            if (!eventId) return alert('Event ID not found.');
             if (!isAdminUser()) return alert('Admin access required.');
-            if (!confirm('Bu maçı tamamen silmek istiyor musun? Bu işlem geri alınamaz.')) return;
-
-            const { error } = await supabaseClient
-                .from('events')
-                .delete()
-                .eq('id', eventId);
-
-            if (error) return alert('Event delete error: ' + error.message);
-
-            alert('Maç tamamen silindi.');
+            if (!confirm('Bu maçı tamamen silmek istiyor musun?')) return;
+            const result = await supabaseClient.from('events').delete().eq('id', eventId);
+            if (result.error) return alert('Event delete error: ' + result.error.message);
+            alert('Maç silindi.');
             fetchEventsForAdmin();
-            fetchEvents();
-        }
-
-        function setAdminTabStyle(activeTab) {
-            const tabs = [
-                { id: 'tabCreateEventBtn', key: 'createEvent' },
-                { id: 'tabPlayersBtn', key: 'players' },
-                { id: 'tabManageEventsBtn', key: 'manageEvents' }
-            ];
-
-            tabs.forEach(t => {
-                const btn = document.getElementById(t.id);
-                if (!btn) return;
-
-                if (t.key === activeTab) {
-                    btn.className = 'flex-1 text-center py-2 font-bold border-b-2 border-orange-500 text-orange-400';
-                } else {
-                    btn.className = 'flex-1 text-center py-2 font-semibold text-gray-500 border-b-2 border-transparent';
-                }
-            });
         }
 
 
         function switchAdminTab(tabId) {
             const tabEvent = document.getElementById('tabCreateEvent');
             const tabPlayers = document.getElementById('tabPlayers');
-            const tabManageEvents = document.getElementById('tabManageEvents');
+            const tabEventsManage = document.getElementById('tabEventsManage');
 
             if (tabEvent) tabEvent.style.display = 'none';
             if (tabPlayers) tabPlayers.style.display = 'none';
-            if (tabManageEvents) tabManageEvents.style.display = 'none';
+            if (tabEventsManage) tabEventsManage.style.display = 'none';
 
-            if (tabId === 'createEvent' && tabEvent) {
-                tabEvent.style.display = 'block';
-            } else if (tabId === 'players' && tabPlayers) {
-                tabPlayers.style.display = 'block';
+            const btnCreate = document.getElementById('tabCreateEventBtn');
+            const btnPlayers = document.getElementById('tabPlayersBtn');
+            const btnEvents = document.getElementById('tabEventsManageBtn');
+
+            [btnCreate, btnPlayers, btnEvents].forEach(function(btn) {
+                if (btn) btn.className = 'flex-1 text-center py-2 font-semibold text-gray-500 border-b-2 border-transparent';
+            });
+
+            if (tabId === 'createEvent') {
+                if (tabEvent) tabEvent.style.display = 'block';
+                if (btnCreate) btnCreate.className = 'flex-1 text-center py-2 font-bold border-b-2 border-orange-500 text-orange-400';
+            }
+
+            if (tabId === 'players') {
+                if (tabPlayers) tabPlayers.style.display = 'block';
+                if (btnPlayers) btnPlayers.className = 'flex-1 text-center py-2 font-bold border-b-2 border-orange-500 text-orange-400';
                 fetchPlayersForAdmin();
-            } else if (tabId === 'manageEvents' && tabManageEvents) {
-                tabManageEvents.style.display = 'block';
+            }
+
+            if (tabId === 'eventsManage') {
+                if (tabEventsManage) tabEventsManage.style.display = 'block';
+                if (btnEvents) btnEvents.className = 'flex-1 text-center py-2 font-bold border-b-2 border-orange-500 text-orange-400';
                 fetchEventsForAdmin();
             }
-
-            setAdminTabStyle(tabId);
-        } else {
-                    tabEvent.style.display = 'none';
-                    tabPlayers.style.display = 'block';
-                }
-            }
         }
+
         function handleJoinEvent(id) {
             if (!loggedInUser) {
                 alert(currentLang === 'en' ? 'Please login first.' : 'Önce giriş yapmalısınız.');
