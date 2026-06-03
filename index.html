@@ -20,16 +20,12 @@
                 <h1 class="text-lg font-bold tracking-wide text-blue-500">PlayOn<span class="text-orange-500">Sport</span></h1>
             </div>
             
-            <div class="flex items-center gap-3 text-xs">
-                <button onclick="showPage('info')" id="navInfoBtn" class="font-semibold text-gray-350 hover:text-white">How It Works</button>
-                <button onclick="showPage('events')" id="navEventsBtn" class="font-semibold text-gray-350 hover:text-white">Events</button>
-                <button onclick="showPage('admin')" id="navAdminBtn" class="font-semibold text-red-400 hover:text-red-300 hidden">Admin</button>
-                <button onclick="showPage('login')" id="navLoginBtn" class="font-semibold text-gray-350 hover:text-white">Login</button>
-                <button id="langBtn" onclick="toggleLanguage()" class="bg-zinc-800 hover:bg-zinc-700 text-white font-semibold px-2.5 py-1 rounded-full shadow-sm transition-all">
-                    🇹🇷 TR
-                </button>
+            <!-- 1. HOME PAGE (ANA SAYFA) -->
+        <div id="homePage" class="page active text-center space-y-6">
+            <!-- LOGO RESMİ GERİ YÜKLENDİ -->
+            <div class="py-4 flex justify-center">
+                <img src="logo-main.png" alt="Play on Sport" class="w-72 h-auto object-contain mx-auto" onerror="this.outerHTML='<h1 class=\'text-3xl font-black tracking-tighter text-orange-500 uppercase\'>Play on Sport</h1>'">
             </div>
-        </div>
     </header>
 
     <main class="flex-grow max-w-md mx-auto w-full px-4 py-6">
