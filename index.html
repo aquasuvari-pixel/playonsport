@@ -235,6 +235,14 @@
         };
 
         
+        
+        function isAdminUser() {
+            return loggedInUser && (
+                loggedInUser.role === 'admin' ||
+                loggedInUser.email === 'aquasuvari@gmail.com'
+            );
+        }
+
         function updateNavAfterLogin() {
             const loginBtn = document.getElementById('navLoginBtn');
             const logoutBtn = document.getElementById('navLogoutBtn');
@@ -307,14 +315,10 @@
                             <div class="flex items-center gap-2"><span>💰</span> <strong>${dictionary[currentLang].lblPrice}</strong> <span class="text-white font-semibold">£${event.price}</span></div>
                             <div class="flex items-center gap-2"><span>👥</span> <strong>${dictionary[currentLang].lblQuota}</strong> <span class="text-orange-400 font-bold">1 / ${event.max_capacity}</span></div>
                         </div>
-                        <div class="w-full bg-zinc-800 rounded-full h-1.5 mb-4"><div class="bg-orange-500 h-1.5 rounded-full" style="width: 8.3%"></div></div>
-                        <!-- BANK_TRANSFER_INFO_BLOCK -->
-                        <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 mb-4 text-[10px] text-zinc-400 leading-relaxed">
-                            <p class="font-bold text-orange-400 mb-1">${currentLang === 'en' ? 'Payment Method' : 'Ödeme Yöntemi'}</p>
-                            <p>${currentLang === 'en' ? 'After joining, transfer the event fee and wait for admin confirmation.' : 'Katıldıktan sonra etkinlik ücretini transfer et ve admin onayını bekle.'}</p>
-                            <p class="mt-1 text-zinc-500">${currentLang === 'en' ? 'Bank details will be shared by the organization.' : 'Banka bilgileri organizasyon tarafından paylaşılacaktır.'}</p>
-                        </div>
-                        ${loggedInUser ? `
+                        <div class="w-full bg-zinc-800 rounded-full h-1.5 mb-5"><div class="bg-orange-500 h-1.5 rounded-full" style="width: 8.3%"></div></div>
+                        ${isAdminUser() ? `
+                        <button disabled class="w-full bg-zinc-800 text-zinc-500 font-bold py-2 rounded-xl text-xs cursor-not-allowed">${currentLang === 'en' ? 'Admin Mode - Cannot Join' : 'Admin Modu - Maça Katılamaz'}</button>
+                        ` : loggedInUser ? `
                         <button onclick="handleJoinEvent('${event.id}')" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded-xl transition-all shadow-sm text-xs">${dictionary[currentLang].btnJoin}</button>
                         ` : `
                         <button onclick="showPage('login')" class="w-full bg-zinc-800 hover:bg-zinc-700 text-gray-300 font-bold py-2 rounded-xl transition-all shadow-sm text-xs">${currentLang === 'en' ? 'Login to Join' : 'Katılmak için giriş yap'}</button>
@@ -379,7 +383,11 @@
                 }
 
                 alert((currentLang === 'en' ? "Welcome back, " : "Tekrar hoş geldiniz, ") + loggedInUser.name);
-                showPage('events'); 
+                if (isAdminUser()) {
+                    showPage('admin');
+                } else {
+                    showPage('events');
+                } 
             }
         }
 
@@ -578,124 +586,6 @@
             fetchPlayersForAdmin();
         }
 
-        
-        async function fetchEventRegistrationsForAdmin() {
-            const listDiv = document.getElementById('adminPlayersList');
-            if (!listDiv) return;
-
-            if (!loggedInUser || !(loggedInUser.role === 'admin' || loggedInUser.email === 'aquasuvari@gmail.com')) {
-                listDiv.innerHTML = `<p class="text-red-400 text-center py-4">Admin access required.</p>`;
-                return;
-            }
-
-            const { data, error } = await supabaseClient
-                .from('event_registrations')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                listDiv.innerHTML = `<p class="text-red-400 text-center py-4">Registration table error: ${error.message}</p>`;
-                return;
-            }
-
-            if (!data || data.length === 0) {
-                listDiv.innerHTML = `<p class="text-zinc-500 text-center py-4">No match registrations found.</p>`;
-                return;
-            }
-
-            listDiv.innerHTML = `
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="font-bold text-gray-200 uppercase text-xs">Match Payment Requests</h3>
-                    <button onclick="fetchEventRegistrationsForAdmin()" class="bg-zinc-800 hover:bg-zinc-700 text-white px-2 py-1 rounded text-[10px]">Refresh</button>
-                </div>
-                <div class="space-y-3">
-                    ${data.map(r => {
-                        const rid = r.id || '';
-                        const pay = r.payment_status || 'pending';
-                        const reg = r.registration_status || 'pending';
-                        const note = r.admin_note || '';
-                        return `
-                            <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-xs space-y-3">
-                                <div>
-                                    <p class="font-bold text-gray-100">${escapeHtml(r.player_name || 'No name')}</p>
-                                    <p class="text-[10px] text-zinc-500">${escapeHtml(r.player_email || '')}</p>
-                                    <p class="text-[10px] text-zinc-600">Event ID: ${escapeHtml(r.event_id || '')}</p>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-[10px] text-zinc-500 mb-1 uppercase font-bold">Payment</label>
-                                        <select id="regpay_${rid}" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-white">
-                                            <option value="pending" ${pay === 'pending' ? 'selected' : ''}>Pending</option>
-                                            <option value="paid" ${pay === 'paid' ? 'selected' : ''}>Paid</option>
-                                            <option value="unpaid" ${pay === 'unpaid' ? 'selected' : ''}>Unpaid</option>
-                                            <option value="refunded" ${pay === 'refunded' ? 'selected' : ''}>Refunded</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] text-zinc-500 mb-1 uppercase font-bold">Registration</label>
-                                        <select id="regstate_${rid}" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-white">
-                                            <option value="pending" ${reg === 'pending' ? 'selected' : ''}>Pending</option>
-                                            <option value="confirmed" ${reg === 'confirmed' ? 'selected' : ''}>Confirmed</option>
-                                            <option value="cancelled" ${reg === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-[10px] text-zinc-500 mb-1 uppercase font-bold">Admin Note</label>
-                                    <textarea id="regnote_${rid}" rows="2" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-white">${escapeHtml(note)}</textarea>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-3">
-                                    <button onclick="updateEventRegistrationAdmin('${rid}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-xs">Save</button>
-                                    <button onclick="deleteEventRegistrationAdmin('${rid}')" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 rounded-xl text-xs">Delete</button>
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            `;
-        }
-
-        async function updateEventRegistrationAdmin(registrationId) {
-            if (!registrationId) return alert('Registration ID not found.');
-
-            const paymentStatus = document.getElementById('regpay_' + registrationId)?.value || 'pending';
-            const registrationStatus = document.getElementById('regstate_' + registrationId)?.value || 'pending';
-            const adminNote = document.getElementById('regnote_' + registrationId)?.value || '';
-
-            const { error } = await supabaseClient
-                .from('event_registrations')
-                .update({
-                    payment_status: paymentStatus,
-                    registration_status: registrationStatus,
-                    admin_note: adminNote,
-                    updated_at: new Date().toISOString()
-                })
-                .eq('id', registrationId);
-
-            if (error) return alert('Update error: ' + error.message);
-
-            alert('Registration updated.');
-            fetchEventRegistrationsForAdmin();
-        }
-
-        async function deleteEventRegistrationAdmin(registrationId) {
-            if (!registrationId) return alert('Registration ID not found.');
-            if (!confirm('Delete this match registration?')) return;
-
-            const { error } = await supabaseClient
-                .from('event_registrations')
-                .delete()
-                .eq('id', registrationId);
-
-            if (error) return alert('Delete error: ' + error.message);
-
-            alert('Registration deleted.');
-            fetchEventRegistrationsForAdmin();
-        }
-
         function switchAdminTab(tabId) { 
             const tabEvent = document.getElementById('tabCreateEvent');
             const tabPlayers = document.getElementById('tabPlayers');
@@ -706,53 +596,23 @@
                 } else {
                     tabEvent.style.display = 'none';
                     tabPlayers.style.display = 'block';
-                    fetchEventRegistrationsForAdmin();
                 }
             }
         }
-        async function handleJoinEvent(id) {
+        function handleJoinEvent(id) {
             if (!loggedInUser) {
                 alert(currentLang === 'en' ? 'Please login first.' : 'Önce giriş yapmalısınız.');
                 showPage('login');
                 return;
             }
 
-            const ok = confirm(
-                currentLang === 'en'
-                    ? 'Your spot will be requested. Payment status will be pending until admin confirmation. Continue?'
-                    : 'Maça katılım talebin alınacak. Ödeme durumu admin onayına kadar beklemede olacak. Devam edilsin mi?'
-            );
-            if (!ok) return;
-
-            const registrationData = {
-                event_id: id,
-                player_email: loggedInUser.email,
-                player_name: loggedInUser.name || '',
-                payment_status: 'pending',
-                registration_status: 'pending'
-            };
-
-            const { error } = await supabaseClient
-                .from('event_registrations')
-                .insert([registrationData]);
-
-            if (error) {
-                alert('Join error: ' + error.message);
+            if (isAdminUser()) {
+                alert(currentLang === 'en' ? 'Admins cannot join matches as players.' : 'Admin hesabı oyuncu gibi maça katılamaz.');
                 return;
             }
 
-            alert(
-                currentLang === 'en'
-                    ? 'Join request received. Please complete bank transfer. Admin will confirm your payment.'
-                    : 'Katılım talebin alındı. Lütfen banka transferini tamamla. Ödemen admin tarafından onaylanacak.'
-            );
+            alert(currentLang === 'en' ? 'Joined match successfully!' : 'Maça katılım başarılı!');
         }
-
-        async function handleLogout() {
-            try {
-                if (supabaseClient.auth && supabaseClient.auth.signOut) {
-                    await supabaseClient.auth.signOut();
-                }
             } catch (err) {
                 console.warn("Logout warning:", err);
             }
