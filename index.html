@@ -254,7 +254,14 @@
             if (targetPage) targetPage.classList.add('active');
             window.scrollTo(0,0);
             if (pageId === 'events') { fetchEvents(); }
-            if (pageId === 'admin') { fetchPlayersForAdmin(); }
+            if (pageId === 'admin') {
+                if (!loggedInUser || !(loggedInUser.role === 'admin' || loggedInUser.email === 'aquasuvari@gmail.com')) {
+                    alert(currentLang === 'en' ? 'Admin login required.' : 'Admin girişi gerekli.');
+                    showPage('login');
+                    return;
+                }
+                fetchPlayersForAdmin();
+            }
         }
 
         async function fetchEvents() {
@@ -388,22 +395,177 @@
         async function fetchPlayersForAdmin() {
             const listDiv = document.getElementById('adminPlayersList');
             if (!listDiv) return;
-            const { data, error } = await supabaseClient.from('players').select('*').order('created_at', { ascending: false });
-            if (error || data.length === 0) { listDiv.innerHTML = `<p class="text-zinc-500 text-center py-4">No players found.</p>`; return; }
-            
-            listDiv.innerHTML = `<h3 class="font-bold text-gray-200 mb-3 uppercase text-xs">Registered Athletes Dashboard</h3><div class="divide-y divide-zinc-800">` + 
-                data.map(p => `
-                    <div class="py-2.5 flex justify-between items-center text-xs">
-                        <div>
-                            <p class="font-bold text-gray-200">${p.name} <span class="text-[10px] font-normal text-zinc-500">(${p.age || '??'} - ${p.gender || '??'})</span></p>
-                            <p class="text-[10px] text-zinc-500">${p.email} | ${p.phone}</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="bg-orange-950/40 text-orange-400 font-bold px-2 py-0.5 rounded text-[10px] border border-orange-900/30">${p.level || 'Karma'}</span>
-                            <p class="text-[9px] text-zinc-400 mt-0.5">${p.position || 'Fark Etmez'}</p>
-                        </div>
-                    </div>
-                `).join('') + `</div>`;
+
+            if (!loggedInUser || !(loggedInUser.role === 'admin' || loggedInUser.email === 'aquasuvari@gmail.com')) {
+                listDiv.innerHTML = `<p class="text-red-400 text-center py-4">Admin access required.</p>`;
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('players')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                listDiv.innerHTML = `<p class="text-red-400 text-center py-4">Database error: ${error.message}</p>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                listDiv.innerHTML = `<p class="text-zinc-500 text-center py-4">No players found.</p>`;
+                return;
+            }
+
+            listDiv.innerHTML = `
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-gray-200 uppercase text-xs">Registered Athletes Dashboard</h3>
+                    <button onclick="fetchPlayersForAdmin()" class="bg-zinc-800 hover:bg-zinc-700 text-white px-2 py-1 rounded text-[10px]">Refresh</button>
+                </div>
+                <div class="space-y-4">
+                    ${data.map(p => {
+                        const playerId = p.id || p.uid || p.player_id || '';
+                        const payStatus = p.payment_status || 'unpaid';
+                        const regStatus = p.registration_status || 'active';
+                        const paidAmount = p.payment_amount ?? '';
+                        const note = p.admin_note || '';
+                        return `
+                            <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-xs space-y-3">
+                                <div class="flex justify-between gap-3">
+                                    <div>
+                                        <p class="font-bold text-gray-100">${escapeHtml(p.name || 'No name')}</p>
+                                        <p class="text-[10px] text-zinc-500">${escapeHtml(p.email || '')}</p>
+                                        <p class="text-[10px] text-zinc-500">${escapeHtml(p.phone || '')}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="bg-orange-950/40 text-orange-400 font-bold px-2 py-0.5 rounded text-[10px] border border-orange-900/30">${escapeHtml(p.level || 'Level?')}</span>
+                                        <p class="text-[9px] text-zinc-400 mt-1">${escapeHtml(p.position || 'Position?')}</p>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-[10px] text-zinc-500 mb-1 uppercase font-bold">Payment</label>
+                                        <select id="pay_${playerId}" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-white">
+                                            <option value="unpaid" ${payStatus === 'unpaid' ? 'selected' : ''}>Unpaid</option>
+                                            <option value="pending" ${payStatus === 'pending' ? 'selected' : ''}>Pending</option>
+                                            <option value="paid" ${payStatus === 'paid' ? 'selected' : ''}>Paid</option>
+                                            <option value="refunded" ${payStatus === 'refunded' ? 'selected' : ''}>Refunded</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] text-zinc-500 mb-1 uppercase font-bold">Amount £</label>
+                                        <input id="amount_${playerId}" type="number" step="0.01" value="${escapeHtml(String(paidAmount))}" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-white">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] text-zinc-500 mb-1 uppercase font-bold">Registration Status</label>
+                                    <select id="regstatus_${playerId}" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-white">
+                                        <option value="active" ${regStatus === 'active' ? 'selected' : ''}>Active</option>
+                                        <option value="waiting" ${regStatus === 'waiting' ? 'selected' : ''}>Waiting</option>
+                                        <option value="cancelled" ${regStatus === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                                        <option value="blocked" ${regStatus === 'blocked' ? 'selected' : ''}>Blocked</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] text-zinc-500 mb-1 uppercase font-bold">Admin Note</label>
+                                    <textarea id="note_${playerId}" rows="2" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-white">${escapeHtml(note)}</textarea>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button onclick="updatePlayerAdmin('${playerId}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-xs">Save</button>
+                                    <button onclick="deletePlayerAdmin('${playerId}', '${escapeJs(p.email || '')}')" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 rounded-xl text-xs">Delete</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+
+        
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+
+        function escapeJs(value) {
+            return String(value ?? '')
+                .replaceAll('\\', '\\\\')
+                .replaceAll("'", "\\'")
+                .replaceAll('"', '\\"');
+        }
+
+        async function updatePlayerAdmin(playerId) {
+            if (!playerId) {
+                alert('Player ID not found.');
+                return;
+            }
+
+            if (!loggedInUser || !(loggedInUser.role === 'admin' || loggedInUser.email === 'aquasuvari@gmail.com')) {
+                alert('Admin access required.');
+                return;
+            }
+
+            const paymentStatus = document.getElementById('pay_' + playerId)?.value || 'unpaid';
+            const amountRaw = document.getElementById('amount_' + playerId)?.value;
+            const registrationStatus = document.getElementById('regstatus_' + playerId)?.value || 'active';
+            const adminNote = document.getElementById('note_' + playerId)?.value || '';
+
+            const updateData = {
+                payment_status: paymentStatus,
+                payment_amount: amountRaw === '' ? null : parseFloat(amountRaw),
+                registration_status: registrationStatus,
+                admin_note: adminNote,
+                payment_updated_at: new Date().toISOString()
+            };
+
+            const { error } = await supabaseClient
+                .from('players')
+                .update(updateData)
+                .eq('id', playerId);
+
+            if (error) {
+                alert('Update error: ' + error.message);
+                return;
+            }
+
+            alert('Player updated successfully.');
+            fetchPlayersForAdmin();
+        }
+
+        async function deletePlayerAdmin(playerId, email) {
+            if (!playerId) {
+                alert('Player ID not found.');
+                return;
+            }
+
+            if (!loggedInUser || !(loggedInUser.role === 'admin' || loggedInUser.email === 'aquasuvari@gmail.com')) {
+                alert('Admin access required.');
+                return;
+            }
+
+            const ok = confirm('Delete this player? ' + email);
+            if (!ok) return;
+
+            const { error } = await supabaseClient
+                .from('players')
+                .delete()
+                .eq('id', playerId);
+
+            if (error) {
+                alert('Delete error: ' + error.message);
+                return;
+            }
+
+            alert('Player deleted.');
+            fetchPlayersForAdmin();
         }
 
         function switchAdminTab(tabId) { 
