@@ -164,6 +164,7 @@
                     </div>
                     <div><label id="lblLabelPhone" class="block font-bold text-gray-400 uppercase mb-1">Phone</label><input type="tel" id="regPhone" required class="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-white"></div>
                     <div><label id="lblLabelEmail" class="block font-bold text-gray-400 uppercase mb-1">Email</label><input type="email" id="regEmail" required class="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-white"></div>
+                    <div><label id="lblLabelPassword" class="block font-bold text-gray-400 uppercase mb-1">Password</label><input type="password" id="regPassword" required minlength="6" class="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-white"></div>
                     <div><label id="lblLabelLevel" class="block font-bold text-gray-400 uppercase mb-1">Level</label><select id="regLevel" class="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-white bg-zinc-950"></select></div>
                     <div><label id="lblLabelPosition" class="block font-bold text-gray-400 uppercase mb-1">Position</label><select id="regPosition" class="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-white bg-zinc-950"></select></div>
                     <button type="submit" id="regSubmitBtn" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 rounded-xl shadow-md transition-all text-xs">Complete Registration</button>
@@ -177,6 +178,7 @@
                 <h2 id="loginTitle" class="text-xl font-bold text-gray-100 mb-5">Login</h2>
                 <form onsubmit="handleLogin(event)" class="space-y-4">
                     <div><label id="lblLoginEmail" class="block font-bold text-gray-400 uppercase mb-1">Email Address</label><input type="email" id="loginEmail" required class="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-white"></div>
+                    <div><label id="lblLoginPassword" class="block font-bold text-gray-400 uppercase mb-1">Password</label><input type="password" id="loginPassword" required class="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-white"></div>
                     <button type="submit" id="loginSubmitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-md">Login with Email</button>
                 </form>
             </div>
@@ -191,7 +193,7 @@
 
     <!-- JAVASCRIPT BAĞLANTI SİHİRBAZI -->
     <script>
-        const SUPABASE_URL = "https://pmonbnhhrjiknsrnprn.supabase.co"; 
+        const SUPABASE_URL = "https://pmonbnhhrjiknsrnprnr.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtb25ibmhocmppa25zcm5wcm5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTE2MzcsImV4cCI6MjA5NTk2NzYzN30.4uKwQKUmDkMH6To01HP3VnOKr45CPNw6KvizH2ZO85o";
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -210,7 +212,7 @@
                 infoS4T: "4. Confirm and Play", infoS4D: "Secure your spot via a simple bank transfer as directed by the administration. Show up at the court, meet your team, and enjoy premium amateur sports magic!", 
                 infoCta: "See Available Matches Now",
                 eventsTitle: "Available Matches", matchCount: " Matches", badgeLevel: "Intermediate", cardTitle: "PlayOnSport Volleyball Event", lblHall: "Hall:", lblPrice: "Price:", lblQuota: "Quota:", btnJoin: "Join Match",
-                regTitle: "Create Account", lblName: "Full Name", lblAge: "Age", lblGender: "Gender", lblPhone: "Phone Number", lblEmail: "Email Address", lblLevel: "Volleyball Level", lblPosition: "Preferred Position", regSubmit: "Complete Registration",
+                regTitle: "Create Account", lblName: "Full Name", lblAge: "Age", lblGender: "Gender", lblPhone: "Phone Number", lblEmail: "Email Address", lblLevel: "Volleyball Level", lblPosition: "Preferred Position", lblPassword: "Password", regSubmit: "Complete Registration",
                 loginTitle: "Login", loginSubmit: "Login with Email",
                 admTitle: "ADS Management Panel", tabCreateEvent: "New Event", tabPlayers: "Payments & Groups", admCreateBtn: "Publish Event", txtCreatedBy: "CREATED BY ADS SPORTS CLUB",
                 genders: ["Male", "Female"],
@@ -227,7 +229,7 @@
                 infoS4T: "4. Onayla ve Oyna", infoS4D: "Yönetimin yönlendirdiği şekilde basit bir banka havalesi ile yerini kesinleştir. Maç günü sahaya gel, takımınla tanış ve amatör sporun tadını çıkar!", 
                 infoCta: "Aktif Maçları Hemen Gör",
                 eventsTitle: "Aktif Maçlar", matchCount: " Maç", badgeLevel: "Orta Seviye", cardTitle: "PlayOnSport Voleybol Etkinliği", lblHall: "Salon:", lblPrice: "Ücret:", lblQuota: "Kontenjan:", btnJoin: "Maça Katıl",
-                regTitle: "Hesap Oluştur", lblName: "Ad Soyad", lblAge: "Yaş", lblGender: "Cinsiyet", lblPhone: "Telefon Numarası", lblEmail: "E-posta Adresi", lblLevel: "Voleybol Seviyesi", lblPosition: "Tercih Edilen Pozisyon", regSubmit: "Kaydı Tamamla",
+                regTitle: "Hesap Oluştur", lblName: "Ad Soyad", lblAge: "Yaş", lblGender: "Cinsiyet", lblPhone: "Telefon Numarası", lblEmail: "E-posta Adresi", lblLevel: "Voleybol Seviyesi", lblPosition: "Tercih Edilen Pozisyon", lblPassword: "Şifre", regSubmit: "Kaydı Tamamla",
                 loginTitle: "Giriş Yap", loginSubmit: "E-posta ile Giriş Yap",
                 admTitle: "ADS Yönetim Paneli", tabCreateEvent: "Yeni Etkinlik", tabPlayers: "Ödemeler & Gruplar", admCreateBtn: "Etkinliği Yayınla", txtCreatedBy: "ADS SPOR KULÜBÜ TARAFINDAN OLUŞTURULDU",
                 genders: ["Erkek", "Kadın"],
@@ -304,6 +306,7 @@
             const gender = document.getElementById('regGender').value;
             const level = document.getElementById('regLevel').value;
             const position = document.getElementById('regPosition').value;
+            const password = document.getElementById('regPassword').value;
 
             const { error: profError } = await supabaseClient.from('players').insert([{
                 name: name,
@@ -312,7 +315,8 @@
                 age: age,
                 gender: gender,
                 level: level,
-                position: position
+                position: position,
+                password: password
             }]);
 
             if (profError) { 
@@ -327,16 +331,24 @@
         async function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value.trim();
-            
+            const password = document.getElementById('loginPassword').value;
+
             const { data, error } = await supabaseClient
                 .from('players')
                 .select('*')
-                .eq('email', email);
+                .eq('email', email)
+                .eq('password', password);
 
             if (error || data.length === 0) { 
                 alert(currentLang === 'en' ? "User not found!" : "Kullanıcı bulunamadı!"); 
             } else { 
                 loggedInUser = data[0];
+
+                const adminBtn = document.getElementById('navAdminBtn');
+                if (adminBtn && (loggedInUser.role === 'admin' || loggedInUser.email === 'aquasuvari@gmail.com')) {
+                    adminBtn.classList.remove('hidden');
+                }
+
                 alert((currentLang === 'en' ? "Welcome back, " : "Tekrar hoş geldiniz, ") + loggedInUser.name);
                 showPage('events'); 
             }
@@ -448,10 +460,12 @@
             document.getElementById('lblLabelEmail').innerText = dictionary[currentLang].lblEmail;
             document.getElementById('lblLabelLevel').innerText = dictionary[currentLang].lblLevel;
             document.getElementById('lblLabelPosition').innerText = dictionary[currentLang].lblPosition;
+            document.getElementById('lblLabelPassword').innerText = dictionary[currentLang].lblPassword;
             document.getElementById('regSubmitBtn').innerText = dictionary[currentLang].regSubmit;
             
             document.getElementById('loginTitle').innerText = dictionary[currentLang].loginTitle;
             document.getElementById('lblLoginEmail').innerText = dictionary[currentLang].lblEmail;
+            document.getElementById('lblLoginPassword').innerText = dictionary[currentLang].lblPassword;
             document.getElementById('loginSubmitBtn').innerText = dictionary[currentLang].loginSubmit;
             
             document.getElementById('eventsTitle').innerText = dictionary[currentLang].eventsTitle;
