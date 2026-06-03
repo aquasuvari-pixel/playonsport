@@ -191,7 +191,7 @@
 
     <!-- JAVASCRIPT BAĞLANTI SİHİRBAZI -->
     <script>
-        const SUPABASE_URL = "https://pmonbnhhrjiknsrnprn.supabase.co"; 
+        const SUPABASE_URL = "https://pmonbnhhrjiknsrnprnr.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtb25ibmhocmppa25zcm5wcm5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTE2MzcsImV4cCI6MjA5NTk2NzYzN30.4uKwQKUmDkMH6To01HP3VnOKr45CPNw6KvizH2ZO85o";
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -320,6 +320,10 @@
             } else { 
                 alert(currentLang === 'en' ? "Registration Successful! You can now login." : "Kayıt Başarılı! Şimdi giriş yapabilirsiniz."); 
                 loggedInUser = { name: name, email: email };
+                const adminBtn = document.getElementById('navAdminBtn');
+                if (adminBtn && email === 'aquasuvari@gmail.com') {
+                    adminBtn.classList.remove('hidden');
+                }
                 showPage('events'); 
             }
         }
@@ -337,6 +341,10 @@
                 alert(currentLang === 'en' ? "User not found!" : "Kullanıcı bulunamadı!"); 
             } else { 
                 loggedInUser = data[0];
+                const adminBtn = document.getElementById('navAdminBtn');
+                if (adminBtn && (loggedInUser.role === 'admin' || loggedInUser.email === 'aquasuvari@gmail.com')) {
+                    adminBtn.classList.remove('hidden');
+                }
                 alert((currentLang === 'en' ? "Welcome back, " : "Tekrar hoş geldiniz, ") + loggedInUser.name);
                 showPage('events'); 
             }
