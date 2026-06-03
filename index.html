@@ -18,10 +18,9 @@
 
     <!-- ÜST MENÜ (HEADER) -->
     <header class="bg-zinc-950/80 backdrop-blur-md border-b border-zinc-850 sticky top-0 z-50">
-        <div class="max-w-md mx-auto px-4 py-2 flex justify-between items-center">
-            <!-- DÜZELTME: Sol üst köşeye mavi-turuncu yazı yerine büyük renkli logo (logo-main.png) geldi -->
-            <div onclick="showPage('home')" class="flex items-center cursor-pointer">
-                <img src="logo-main.png" alt="PlayOnSport" class="h-10 w-auto object-contain" onerror="this.outerHTML='<h1 class=\'text-base font-bold text-blue-500\'>PlayOn<span class=\'text-orange-500\'>Sport</span></h1>'">
+        <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
+            <div onclick="showPage('home')" class="flex items-center cursor-pointer border border-blue-500/80 px-3 py-1 rounded-lg bg-zinc-900/50 shadow-sm">
+                <span class="text-xs font-black tracking-wider text-white">PLAY ON <span class="text-orange-500">SPORT</span></span>
             </div>
             
             <div class="flex items-center gap-3 text-xs">
@@ -41,9 +40,8 @@
         
         <!-- 1. HOME PAGE (ANA SAYFA) -->
         <div id="homePage" class="page active text-center space-y-6">
-            <!-- DÜZELTME: Ortadaki kutu kalktı, yerine tam istediğin gibi voleybol logolu resim (logo-volleybol.png) geldi -->
             <div class="py-4 flex justify-center">
-                <img src="logo-volleybol.png" alt="Play on Sport" class="w-64 h-auto object-contain mx-auto" onerror="this.outerHTML='<h1 class=\'text-3xl font-black tracking-tighter text-orange-500 uppercase\'>Play on Sport</h1>'">
+                <img src="logo-main.png" alt="Play on Sport" class="w-72 h-auto object-contain mx-auto" onerror="this.outerHTML='<h1 class=\'text-3xl font-black tracking-tighter text-orange-500 uppercase\'>Play on Sport</h1>'">
             </div>
 
             <div class="px-2">
@@ -75,7 +73,7 @@
             </div>
         </div>
 
-        <!-- 2. INFO / HOW IT WORKS PAGE -->
+        <!-- 2. INFO / HOW IT WORKS PAGE (Dinamik Kimlikler Eklendi) -->
         <div id="infoPage" class="page space-y-6">
             <h2 id="infoTitle" class="text-xl font-bold text-gray-100 flex items-center gap-2">ℹ️ How PlayOnSport Works</h2>
             <div class="space-y-4">
@@ -191,7 +189,7 @@
         <p id="footerText">© 2026 PlayOnSport - An ADS Sports Club organization.</p>
     </footer>
 
-    <!-- JAVASCRIPT SİHİRBAZI -->
+    <!-- JAVASCRIPT BAĞLANTI SİHİRBAZI -->
     <script>
         const SUPABASE_URL = "https://pmonbnhhrjiknsrnprn.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtb25ibmhocmppa25zcm5wcm5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTE2MzcsImV4cCI6MjA5NTk2NzYzN30.4uKwQKUmDkMH6To01HP3VnOKr45CPNw6KvizH2ZO85o";
@@ -205,10 +203,12 @@
             en: {
                 navInfo: "How It Works", navEvents: "Events", navLogin: "Login", welcomeDesc: "PlayOnSport is an ADS Sports Club organization that brings together athletes who want to play volleyball on the same court at designated days and times.",
                 ctaBtn: "Register Now & Play", learnMoreBtn: "Learn How It Works ➡️", footerText: "© 2026 PlayOnSport - An ADS Sports Club organization.", btnText: "🇹🇷 TR",
-                infoTitle: "ℹ️ How PlayOnSport Works", infoS1T: "1. Create Your Sports Profile", infoS1D: "Sign up by entering your volleyball level and preferred playing position. This helps us ensure balanced and competitive matches.",
+                infoTitle: "ℹ️ How PlayOnSport Works", 
+                infoS1T: "1. Create Your Sports Profile", infoS1D: "Sign up by entering your volleyball level and preferred playing position. This helps us ensure balanced and competitive matches.",
                 infoS2T: "2. Pick an Event", infoS2D: "Browse through the available upcoming volleyball events organized under ADS Sports Club quality in London. Find the time and location that fits you best.",
                 infoS3T: "3. The 12-Player Group System", infoS3D: "Each event has a strict maximum capacity of 12 players (6v6). Once the 12th spot is taken, the group automatically closes, and the match is officially confirmed.",
-                infoS4T: "4. Confirm and Play", infoS4D: "Secure your spot via a simple bank transfer as directed by the administration. Show up at the court, meet your team, and enjoy premium amateur sports magic!", infoCta: "See Available Matches Now",
+                infoS4T: "4. Confirm and Play", infoS4D: "Secure your spot via a simple bank transfer as directed by the administration. Show up at the court, meet your team, and enjoy premium amateur sports magic!", 
+                infoCta: "See Available Matches Now",
                 eventsTitle: "Available Matches", matchCount: " Matches", badgeLevel: "Intermediate", cardTitle: "PlayOnSport Volleyball Event", lblHall: "Hall:", lblPrice: "Price:", lblQuota: "Quota:", btnJoin: "Join Match",
                 regTitle: "Create Account", lblName: "Full Name", lblAge: "Age", lblGender: "Gender", lblPhone: "Phone Number", lblEmail: "Email Address", lblLevel: "Volleyball Level", lblPosition: "Preferred Position", regSubmit: "Complete Registration",
                 loginTitle: "Login", loginSubmit: "Login with Email",
@@ -220,10 +220,12 @@
             tr: {
                 navInfo: "Nasıl Çalışır", navEvents: "Etkinlikler", navLogin: "Giriş Yap", welcomeDesc: "PlayOnSport, voleybol oynamak isteyen sporcuları belirlenen gün ve saatlerde aynı sahada buluşturan ADS Spor Kulübü organizasyonudur.",
                 ctaBtn: "Hemen Kaydol & Oyna", learnMoreBtn: "Nasıl Çalıştığını Öğren ➡️", footerText: "© 2026 PlayOnSport - Bir ADS Spor Kulübü organizasyonudur.", btnText: "🇬🇧 EN",
-                infoTitle: "ℹ️ PlayOnSport Nasıl Çalışır?", infoS1T: "1. Sporcu Profilini Oluştur", infoS1D: "Voleybol seviyeni ve oynamak istediğin pozisyonu seçerek kaydol. Bu, dengeli ve rekabetçi maçlar ayarlamamıza yardımcı olur.",
+                infoTitle: "ℹ️ PlayOnSport Nasıl Çalışır?", 
+                infoS1T: "1. Sporcu Profilini Oluştur", infoS1D: "Voleybol seviyeni ve oynamak istediğin pozisyonu seçerek kaydol. Bu, dengeli ve rekabetçi maçlar ayarlamamıza yardımcı olur.",
                 infoS2T: "2. Bir Maç Seç", infoS2D: "Londra'da ADS Spor Kulübü kalitesiyle düzenlenen aktif voleybol maçlarına göz at. Sana en uygun zaman ve salonu seç.",
                 infoS3T: "3. 12 Kişilik Grup Sistemi", infoS3D: "Her etkinlik maksimum 12 oyuncu (6'şar kişilik iki takım) ile sınırlıdır. 12. kişi kayıt olduğunda grup otomatik kapanır ve maç kesinleşir.",
-                infoS4T: "4. Onayla ve Oyna", infoS4D: "Yönetimin yönlendirdiği şekilde basit bir banka havalesi ile yerini kesinleştir. Maç günü sahaya gel, takımınla tanış ve amatör sporun tadını çıkar!", infoCta: "Aktif Maçları Hemen Gör",
+                infoS4T: "4. Onayla ve Oyna", infoS4D: "Yönetimin yönlendirdiği şekilde basit bir banka havalesi ile yerini kesinleştir. Maç günü sahaya gel, takımınla tanış ve amatör sporun tadını çıkar!", 
+                infoCta: "Aktif Maçları Hemen Gör",
                 eventsTitle: "Aktif Maçlar", matchCount: " Maç", badgeLevel: "Orta Seviye", cardTitle: "PlayOnSport Voleybol Etkinliği", lblHall: "Salon:", lblPrice: "Ücret:", lblQuota: "Kontenjan:", btnJoin: "Maça Katıl",
                 regTitle: "Hesap Oluştur", lblName: "Ad Soyad", lblAge: "Yaş", lblGender: "Cinsiyet", lblPhone: "Telefon Numarası", lblEmail: "E-posta Adresi", lblLevel: "Voleybol Seviyesi", lblPosition: "Tercih Edilen Pozisyon", regSubmit: "Kaydı Tamamla",
                 loginTitle: "Giriş Yap", loginSubmit: "E-posta ile Giriş Yap",
@@ -413,6 +415,7 @@
             if(genderSelect) genderSelect.innerHTML = dictionary[currentLang].genders.map(g => `<option value="${g}">${g}</option>`).join('');
         }
 
+        // DÜZELTİLEN BÖLÜM: "Nasıl Çalışır" sayfasındaki tüm başlık ve açıklamaların dil senkronizasyonu bağlandı
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'tr' : 'en';
             document.getElementById('navInfoBtn').innerText = dictionary[currentLang].navInfo; 
@@ -424,6 +427,18 @@
             document.getElementById('ctaBtn').innerText = dictionary[currentLang].ctaBtn; 
             document.getElementById('learnMoreBtn').innerText = dictionary[currentLang].learnMoreBtn; 
             document.getElementById('txtCreatedBy').innerText = dictionary[currentLang].txtCreatedBy;
+            
+            // Nasıl Çalışır Sayfası Dil Onarımları
+            document.getElementById('infoTitle').innerText = dictionary[currentLang].infoTitle;
+            document.getElementById('infoStep1Title').innerText = dictionary[currentLang].infoS1T;
+            document.getElementById('infoStep1Desc').innerText = dictionary[currentLang].infoS1D;
+            document.getElementById('infoStep2Title').innerText = dictionary[currentLang].infoS2T;
+            document.getElementById('infoStep2Desc').innerText = dictionary[currentLang].infoS2D;
+            document.getElementById('infoStep3Title').innerText = dictionary[currentLang].infoS3T;
+            document.getElementById('infoStep3Desc').innerText = dictionary[currentLang].infoS3D;
+            document.getElementById('infoStep4Title').innerText = dictionary[currentLang].infoS4T;
+            document.getElementById('infoStep4Desc').innerText = dictionary[currentLang].infoS4D;
+            document.getElementById('infoCtaBtn').innerText = dictionary[currentLang].infoCta;
             
             document.getElementById('regTitle').innerText = dictionary[currentLang].regTitle;
             document.getElementById('lblLabelName').innerText = dictionary[currentLang].lblName;
