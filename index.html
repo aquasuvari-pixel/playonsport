@@ -295,7 +295,6 @@
                 alert("Database Error: " + profError.message); 
             } else { 
                 alert(currentLang === 'en' ? "Registration Successful! You can now login." : "Kayıt Başarılı! Şimdi giriş yapabilirsiniz."); 
-                // Geçici olarak giriş simülasyonu yapıyoruz
                 loggedInUser = { name: name, email: email };
                 showPage('events'); 
             }
