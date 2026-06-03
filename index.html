@@ -308,7 +308,11 @@
                             <div class="flex items-center gap-2"><span>👥</span> <strong>${dictionary[currentLang].lblQuota}</strong> <span class="text-orange-400 font-bold">1 / ${event.max_capacity}</span></div>
                         </div>
                         <div class="w-full bg-zinc-800 rounded-full h-1.5 mb-5"><div class="bg-orange-500 h-1.5 rounded-full" style="width: 8.3%"></div></div>
+                        ${loggedInUser ? `
                         <button onclick="handleJoinEvent('${event.id}')" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded-xl transition-all shadow-sm text-xs">${dictionary[currentLang].btnJoin}</button>
+                        ` : `
+                        <button onclick="showPage('login')" class="w-full bg-zinc-800 hover:bg-zinc-700 text-gray-300 font-bold py-2 rounded-xl transition-all shadow-sm text-xs">${currentLang === 'en' ? 'Login to Join' : 'Katılmak için giriş yap'}</button>
+                        `}
                     </div>
                 </div>`;
             }).join('');
@@ -581,7 +585,14 @@
                 }
             }
         }
-        function handleJoinEvent(id) { alert("Joined match successfully!"); }
+        function handleJoinEvent(id) {
+            if (!loggedInUser) {
+                alert(currentLang === 'en' ? 'Please login first.' : 'Önce giriş yapmalısınız.');
+                showPage('login');
+                return;
+            }
+            alert(currentLang === 'en' ? 'Joined match successfully!' : 'Maça katılım başarılı!');
+        }
 
         async function handleLogout() {
             try {
