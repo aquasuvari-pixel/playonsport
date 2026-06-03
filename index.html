@@ -28,6 +28,7 @@
                 <button onclick="showPage('events')" id="navEventsBtn" class="font-semibold text-gray-350 hover:text-white">Events</button>
                 <button onclick="showPage('admin')" id="navAdminBtn" class="font-semibold text-red-400 hover:text-red-300 hidden">Admin</button>
                 <button onclick="showPage('login')" id="navLoginBtn" class="font-semibold text-gray-350 hover:text-white">Login</button>
+                <button onclick="handleLogout()" id="navLogoutBtn" class="font-semibold text-red-400 hover:text-red-300 hidden">Logout</button>
                 <button id="langBtn" onclick="toggleLanguage()" class="bg-zinc-800 hover:bg-zinc-700 text-white font-semibold px-2.5 py-1 rounded-full shadow-sm transition-all">
                     🇹🇷 TR
                 </button>
@@ -64,11 +65,6 @@
             <div class="pt-8 space-y-2">
                 <div class="text-[10px] font-bold tracking-widest text-zinc-500 uppercase">
                     <span id="txtCreatedBy">CREATED BY ADS SPORTS CLUB</span>
-                </div>
-                <div>
-                    <button onclick="simulateAdminLogin()" class="text-[9px] bg-zinc-900 text-zinc-600 px-2.5 py-1 rounded-lg hover:bg-zinc-800 transition-all border border-zinc-800/30">
-                        ⚙️ Simulate Admin Login
-                    </button>
                 </div>
             </div>
         </div>
@@ -238,6 +234,20 @@
             }
         };
 
+        
+        function updateNavAfterLogin() {
+            const loginBtn = document.getElementById('navLoginBtn');
+            const logoutBtn = document.getElementById('navLogoutBtn');
+            const adminBtn = document.getElementById('navAdminBtn');
+
+            if (loginBtn) loginBtn.classList.add('hidden');
+            if (logoutBtn) logoutBtn.classList.remove('hidden');
+
+            if (adminBtn && loggedInUser && (loggedInUser.role === 'admin' || loggedInUser.email === 'aquasuvari@gmail.com')) {
+                adminBtn.classList.remove('hidden');
+            }
+        }
+
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const targetPage = document.getElementById(pageId + 'Page');
@@ -324,6 +334,7 @@
             } else { 
                 alert(currentLang === 'en' ? "Registration Successful! You can now login." : "Kayıt Başarılı! Şimdi giriş yapabilirsiniz."); 
                 loggedInUser = { name: name, email: email };
+                updateNavAfterLogin();
                 showPage('events'); 
             }
         }
@@ -343,6 +354,7 @@
                 alert(currentLang === 'en' ? "User not found!" : "Kullanıcı bulunamadı!"); 
             } else { 
                 loggedInUser = data[0];
+                updateNavAfterLogin();
 
                 const adminBtn = document.getElementById('navAdminBtn');
                 if (adminBtn && (loggedInUser.role === 'admin' || loggedInUser.email === 'aquasuvari@gmail.com')) {
@@ -407,13 +419,31 @@
                 }
             }
         }
-        
-        function simulateAdminLogin() { 
-            const adminBtn = document.getElementById('navAdminBtn');
-            if (adminBtn) adminBtn.classList.remove('hidden'); 
-            showPage('admin'); 
-        }
         function handleJoinEvent(id) { alert("Joined match successfully!"); }
+
+        async function handleLogout() {
+            try {
+                if (supabaseClient.auth && supabaseClient.auth.signOut) {
+                    await supabaseClient.auth.signOut();
+                }
+            } catch (err) {
+                console.warn("Logout warning:", err);
+            }
+
+            loggedInUser = null;
+
+            const adminBtn = document.getElementById('navAdminBtn');
+            const loginBtn = document.getElementById('navLoginBtn');
+            const logoutBtn = document.getElementById('navLogoutBtn');
+
+            if (adminBtn) adminBtn.classList.add('hidden');
+            if (logoutBtn) logoutBtn.classList.add('hidden');
+            if (loginBtn) loginBtn.classList.remove('hidden');
+
+            alert(currentLang === 'en' ? 'Logged out successfully.' : 'Çıkış yapıldı.');
+            showPage('home');
+        }
+
 
         function populateDropdowns() {
             const levelSelect = document.getElementById('regLevel'); 
@@ -432,7 +462,10 @@
             currentLang = currentLang === 'en' ? 'tr' : 'en';
             document.getElementById('navInfoBtn').innerText = dictionary[currentLang].navInfo; 
             document.getElementById('navEventsBtn').innerText = dictionary[currentLang].navEvents; 
-            document.getElementById('navLoginBtn').innerText = dictionary[currentLang].navLogin; 
+            document.getElementById('navLoginBtn').innerText = dictionary[currentLang].navLogin;
+            const logoutText = currentLang === 'en' ? 'Logout' : 'Çıkış';
+            const logoutBtnLang = document.getElementById('navLogoutBtn');
+            if (logoutBtnLang) logoutBtnLang.innerText = logoutText; 
             document.getElementById('langBtn').innerText = dictionary[currentLang].btnText; 
             document.getElementById('footerText').innerText = dictionary[currentLang].footerText; 
             document.getElementById('welcomeDesc').innerText = dictionary[currentLang].welcomeDesc; 
