@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlayOnSport - ADS Sports Club</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Supabase Resmi Kütüphanesi -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary-orange: #FF6B00; --primary-blue: #0056B3; }
@@ -14,30 +16,34 @@
 </head>
 <body class="bg-black text-white font-sans flex flex-col min-h-screen">
 
+    <!-- ÜST MENÜ (HEADER) -->
     <header class="bg-zinc-950/80 backdrop-blur-md border-b border-zinc-850 sticky top-0 z-50">
-        <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
-            <div onclick="showPage('home')" class="flex items-center gap-2 cursor-pointer">
-                <h1 class="text-lg font-bold tracking-wide text-blue-500">PlayOn<span class="text-orange-500">Sport</span></h1>
+        <div class="max-w-md mx-auto px-4 py-2 flex justify-between items-center">
+            <!-- DÜZELTME: Sol üst köşeye mavi-turuncu yazı yerine büyük renkli logo (logo-main.png) geldi -->
+            <div onclick="showPage('home')" class="flex items-center cursor-pointer">
+                <img src="logo-main.png" alt="PlayOnSport" class="h-10 w-auto object-contain" onerror="this.outerHTML='<h1 class=\'text-base font-bold text-blue-500\'>PlayOn<span class=\'text-orange-500\'>Sport</span></h1>'">
             </div>
             
-            <!-- 1. HOME PAGE (ANA SAYFA) -->
-        <div id="homePage" class="page active text-center space-y-6">
-            <!-- LOGO RESMİ GERİ YÜKLENDİ -->
-            <div class="py-4 flex justify-center">
-                <img src="logo-main.png" alt="Play on Sport" class="w-72 h-auto object-contain mx-auto" onerror="this.outerHTML='<h1 class=\'text-3xl font-black tracking-tighter text-orange-500 uppercase\'>Play on Sport</h1>'">
+            <div class="flex items-center gap-3 text-xs">
+                <button onclick="showPage('info')" id="navInfoBtn" class="font-semibold text-gray-350 hover:text-white">How It Works</button>
+                <button onclick="showPage('events')" id="navEventsBtn" class="font-semibold text-gray-350 hover:text-white">Events</button>
+                <button onclick="showPage('admin')" id="navAdminBtn" class="font-semibold text-red-400 hover:text-red-300 hidden">Admin</button>
+                <button onclick="showPage('login')" id="navLoginBtn" class="font-semibold text-gray-350 hover:text-white">Login</button>
+                <button id="langBtn" onclick="toggleLanguage()" class="bg-zinc-800 hover:bg-zinc-700 text-white font-semibold px-2.5 py-1 rounded-full shadow-sm transition-all">
+                    🇹🇷 TR
+                </button>
             </div>
+        </div>
     </header>
 
+    <!-- ANA İÇERİK -->
     <main class="flex-grow max-w-md mx-auto w-full px-4 py-6">
         
+        <!-- 1. HOME PAGE (ANA SAYFA) -->
         <div id="homePage" class="page active text-center space-y-6">
-            <div class="py-6 text-center select-none">
-                <div class="inline-block bg-gradient-to-r from-blue-600 to-orange-500 p-1 rounded-2xl shadow-lg shadow-orange-500/10">
-                    <div class="bg-black px-8 py-4 rounded-xl">
-                        <span class="text-3xl font-black tracking-tighter text-white">PLAY ON <span class="text-orange-500">SPORT</span></span>
-                        <div class="text-[9px] font-bold tracking-widest text-zinc-500 uppercase mt-1">ADS Sports Club Organization</div>
-                    </div>
-                </div>
+            <!-- DÜZELTME: Ortadaki kutu kalktı, yerine tam istediğin gibi voleybol logolu resim (logo-volleybol.png) geldi -->
+            <div class="py-4 flex justify-center">
+                <img src="logo-volleybol.png" alt="Play on Sport" class="w-64 h-auto object-contain mx-auto" onerror="this.outerHTML='<h1 class=\'text-3xl font-black tracking-tighter text-orange-500 uppercase\'>Play on Sport</h1>'">
             </div>
 
             <div class="px-2">
@@ -69,6 +75,7 @@
             </div>
         </div>
 
+        <!-- 2. INFO / HOW IT WORKS PAGE -->
         <div id="infoPage" class="page space-y-6">
             <h2 id="infoTitle" class="text-xl font-bold text-gray-100 flex items-center gap-2">ℹ️ How PlayOnSport Works</h2>
             <div class="space-y-4">
@@ -104,6 +111,7 @@
             <button onclick="showPage('events')" id="infoCtaBtn" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition-all text-xs shadow-md">See Available Matches Now</button>
         </div>
 
+        <!-- 3. EVENTS PAGE -->
         <div id="eventsPage" class="page">
             <div class="flex justify-between items-center mb-5">
                 <h2 id="eventsTitle" class="text-xl font-bold text-gray-100">Available Matches</h2>
@@ -114,6 +122,7 @@
             </div>
         </div>
 
+        <!-- 4. ADMIN PANEL PAGE -->
         <div id="adminPage" class="page">
             <h2 id="admTitle" class="text-xl font-bold text-gray-100 mb-5">ADS Management Panel</h2>
             <div class="flex border-b border-zinc-800 mb-6 text-xs">
@@ -145,6 +154,7 @@
             </div>
         </div>
 
+        <!-- 5. REGISTER PAGE -->
         <div id="registerPage" class="page">
             <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 text-xs text-gray-300">
                 <h2 id="regTitle" class="text-xl font-bold text-gray-100 mb-5">Create Account</h2>
@@ -163,6 +173,7 @@
             </div>
         </div>
 
+        <!-- 6. LOGIN PAGE -->
         <div id="loginPage" class="page">
             <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 text-xs text-gray-300">
                 <h2 id="loginTitle" class="text-xl font-bold text-gray-100 mb-5">Login</h2>
@@ -175,10 +186,12 @@
 
     </main>
 
+    <!-- ALT BİLGİ -->
     <footer class="bg-zinc-950 text-gray-500 text-center py-4 text-[10px] border-t border-zinc-900 mt-auto">
         <p id="footerText">© 2026 PlayOnSport - An ADS Sports Club organization.</p>
     </footer>
 
+    <!-- JAVASCRIPT SİHİRBAZI -->
     <script>
         const SUPABASE_URL = "https://pmonbnhhrjiknsrnprn.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtb25ibmhocmppa25zcm5wcm5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTE2MzcsImV4cCI6MjA5NTk2NzYzN30.4uKwQKUmDkMH6To01HP3VnOKr45CPNw6KvizH2ZO85o";
@@ -205,4 +218,237 @@
                 positions: ["Setter", "Opposite", "Outside Hitter", "Middle Blocker", "Libero", "Does Not Matter"]
             },
             tr: {
-                navInfo: "Nasıl Çalışır", navEvents: "Etkinlikler", navLogin: "Giriş Yap", welcomeDesc: "
+                navInfo: "Nasıl Çalışır", navEvents: "Etkinlikler", navLogin: "Giriş Yap", welcomeDesc: "PlayOnSport, voleybol oynamak isteyen sporcuları belirlenen gün ve saatlerde aynı sahada buluşturan ADS Spor Kulübü organizasyonudur.",
+                ctaBtn: "Hemen Kaydol & Oyna", learnMoreBtn: "Nasıl Çalıştığını Öğren ➡️", footerText: "© 2026 PlayOnSport - Bir ADS Spor Kulübü organizasyonudur.", btnText: "🇬🇧 EN",
+                infoTitle: "ℹ️ PlayOnSport Nasıl Çalışır?", infoS1T: "1. Sporcu Profilini Oluştur", infoS1D: "Voleybol seviyeni ve oynamak istediğin pozisyonu seçerek kaydol. Bu, dengeli ve rekabetçi maçlar ayarlamamıza yardımcı olur.",
+                infoS2T: "2. Bir Maç Seç", infoS2D: "Londra'da ADS Spor Kulübü kalitesiyle düzenlenen aktif voleybol maçlarına göz at. Sana en uygun zaman ve salonu seç.",
+                infoS3T: "3. 12 Kişilik Grup Sistemi", infoS3D: "Her etkinlik maksimum 12 oyuncu (6'şar kişilik iki takım) ile sınırlıdır. 12. kişi kayıt olduğunda grup otomatik kapanır ve maç kesinleşir.",
+                infoS4T: "4. Onayla ve Oyna", infoS4D: "Yönetimin yönlendirdiği şekilde basit bir banka havalesi ile yerini kesinleştir. Maç günü sahaya gel, takımınla tanış ve amatör sporun tadını çıkar!", infoCta: "Aktif Maçları Hemen Gör",
+                eventsTitle: "Aktif Maçlar", matchCount: " Maç", badgeLevel: "Orta Seviye", cardTitle: "PlayOnSport Voleybol Etkinliği", lblHall: "Salon:", lblPrice: "Ücret:", lblQuota: "Kontenjan:", btnJoin: "Maça Katıl",
+                regTitle: "Hesap Oluştur", lblName: "Ad Soyad", lblAge: "Yaş", lblGender: "Cinsiyet", lblPhone: "Telefon Numarası", lblEmail: "E-posta Adresi", lblLevel: "Voleybol Seviyesi", lblPosition: "Tercih Edilen Pozisyon", regSubmit: "Kaydı Tamamla",
+                loginTitle: "Giriş Yap", loginSubmit: "E-posta ile Giriş Yap",
+                admTitle: "ADS Yönetim Paneli", tabCreateEvent: "Yeni Etkinlik", tabPlayers: "Ödemeler & Gruplar", admCreateBtn: "Etkinliği Yayınla", txtCreatedBy: "ADS SPOR KULÜBÜ TARAFINDAN OLUŞTURULDU",
+                genders: ["Erkek", "Kadın"],
+                levels: ["Başlangıç", "Orta", "İyi", "İleri", "Veteran", "Karma Grup"],
+                positions: ["Pasör", "Pasör Çaprazı", "Smaçör", "Orta Oyuncu", "Libero", "Fark Etmez"]
+            }
+        };
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const targetPage = document.getElementById(pageId + 'Page');
+            if (targetPage) targetPage.classList.add('active');
+            window.scrollTo(0,0);
+            if (pageId === 'events') { fetchEvents(); }
+            if (pageId === 'admin') { fetchPlayersForAdmin(); }
+        }
+
+        async function fetchEvents() {
+            const container = document.getElementById('eventsListContainer');
+            if (!container) return;
+            container.innerHTML = `<p class="text-center text-xs text-zinc-500 py-8">Loading matches...</p>`;
+
+            const { data, error } = await supabaseClient
+                .from('events')
+                .select('*')
+                .eq('status', 'active')
+                .order('event_date', { ascending: true });
+
+            if (error) {
+                container.innerHTML = `<p class="text-center text-xs text-red-400 py-8">Error loading data.</p>`;
+                return;
+            }
+
+            const badge = document.getElementById('matchCountBadge');
+            if (badge) badge.innerText = data.length + dictionary[currentLang].matchCount;
+
+            if (data.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-zinc-500 py-8">No active matches found.</p>`;
+                return;
+            }
+
+            container.innerHTML = data.map(event => {
+                const title = currentLang === 'en' ? (event.title_en || event.title) : event.title;
+                const hall = currentLang === 'en' ? (event.hall_name_en || event.hall_name) : event.hall_name;
+                const timeStr = event.event_time ? event.event_time.slice(0,5) : "00:00";
+                
+                return `
+                <div class="bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden shadow-lg">
+                    <div class="h-32 w-full overflow-hidden relative bg-zinc-850">
+                        <img src="https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover opacity-80">
+                        <div class="absolute top-3 left-3"><span class="bg-zinc-950 text-blue-400 text-xs font-extrabold px-2 py-1 rounded-md border border-zinc-800">${event.level}</span></div>
+                        <div class="absolute top-3 right-3 bg-black/70 backdrop-blur-xs px-2 py-1 rounded-md text-white text-xs font-semibold border border-zinc-800/50">📅 ${event.event_date} - ${timeStr}</div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-base font-bold text-gray-100 mb-3">${title}</h3>
+                        <div class="space-y-2 text-xs text-gray-400 mb-4">
+                            <div class="flex items-center gap-2"><span>📍</span> <strong>${dictionary[currentLang].lblHall}</strong> <span>${hall}</span></div>
+                            <div class="flex items-center gap-2"><span>💰</span> <strong>${dictionary[currentLang].lblPrice}</strong> <span class="text-white font-semibold">£${event.price}</span></div>
+                            <div class="flex items-center gap-2"><span>👥</span> <strong>${dictionary[currentLang].lblQuota}</strong> <span class="text-orange-400 font-bold">1 / ${event.max_capacity}</span></div>
+                        </div>
+                        <div class="w-full bg-zinc-800 rounded-full h-1.5 mb-5"><div class="bg-orange-500 h-1.5 rounded-full" style="width: 8.3%"></div></div>
+                        <button onclick="handleJoinEvent('${event.id}')" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded-xl transition-all shadow-sm text-xs">${dictionary[currentLang].btnJoin}</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const email = document.getElementById('regEmail').value.trim();
+            const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const age = parseInt(document.getElementById('regAge').value);
+            const gender = document.getElementById('regGender').value;
+            const level = document.getElementById('regLevel').value;
+            const position = document.getElementById('regPosition').value;
+
+            const { error: profError } = await supabaseClient.from('players').insert([{
+                name: name,
+                email: email,
+                phone: phone,
+                age: age,
+                gender: gender,
+                level: level,
+                position: position
+            }]);
+
+            if (profError) { 
+                alert("Database Error: " + profError.message); 
+            } else { 
+                alert(currentLang === 'en' ? "Registration Successful! You can now login." : "Kayıt Başarılı! Şimdi giriş yapabilirsiniz."); 
+                loggedInUser = { name: name, email: email };
+                showPage('events'); 
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            
+            const { data, error } = await supabaseClient
+                .from('players')
+                .select('*')
+                .eq('email', email);
+
+            if (error || data.length === 0) { 
+                alert(currentLang === 'en' ? "User not found!" : "Kullanıcı bulunamadı!"); 
+            } else { 
+                loggedInUser = data[0];
+                alert((currentLang === 'en' ? "Welcome back, " : "Tekrar hoş geldiniz, ") + loggedInUser.name);
+                showPage('events'); 
+            }
+        }
+
+        async function handleCreateEvent(e) {
+            e.preventDefault();
+            const { error } = await supabaseClient.from('events').insert([{
+                title: document.getElementById('admInpTitle').value,
+                title_en: document.getElementById('admInpTitle').value,
+                event_date: document.getElementById('admInpDate').value,
+                event_time: document.getElementById('admInpTime').value,
+                price: parseFloat(document.getElementById('admInpPrice').value),
+                level: document.getElementById('admSelectLevel').value,
+                hall_name: document.getElementById('admInpHall').value,
+                hall_name_en: document.getElementById('admInpHall').value,
+                status: 'active',
+                max_capacity: 12
+            }]);
+
+            if (error) { alert("Event Error: " + error.message); } 
+            else { alert("Event published!"); showPage('events'); }
+        }
+
+        async function fetchPlayersForAdmin() {
+            const listDiv = document.getElementById('adminPlayersList');
+            if (!listDiv) return;
+            const { data, error } = await supabaseClient.from('players').select('*').order('created_at', { ascending: false });
+            if (error || data.length === 0) { listDiv.innerHTML = `<p class="text-zinc-500 text-center py-4">No players found.</p>`; return; }
+            
+            listDiv.innerHTML = `<h3 class="font-bold text-gray-200 mb-3 uppercase text-xs">Registered Athletes Dashboard</h3><div class="divide-y divide-zinc-800">` + 
+                data.map(p => `
+                    <div class="py-2.5 flex justify-between items-center text-xs">
+                        <div>
+                            <p class="font-bold text-gray-200">${p.name} <span class="text-[10px] font-normal text-zinc-500">(${p.age || '??'} - ${p.gender || '??'})</span></p>
+                            <p class="text-[10px] text-zinc-500">${p.email} | ${p.phone}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="bg-orange-950/40 text-orange-400 font-bold px-2 py-0.5 rounded text-[10px] border border-orange-900/30">${p.level || 'Karma'}</span>
+                            <p class="text-[9px] text-zinc-400 mt-0.5">${p.position || 'Fark Etmez'}</p>
+                        </div>
+                    </div>
+                `).join('') + `</div>`;
+        }
+
+        function switchAdminTab(tabId) { 
+            const tabEvent = document.getElementById('tabCreateEvent');
+            const tabPlayers = document.getElementById('tabPlayers');
+            if (tabEvent && tabPlayers) {
+                if(tabId === 'createEvent') {
+                    tabEvent.style.display = 'block';
+                    tabPlayers.style.display = 'none';
+                } else {
+                    tabEvent.style.display = 'none';
+                    tabPlayers.style.display = 'block';
+                }
+            }
+        }
+        
+        function simulateAdminLogin() { 
+            const adminBtn = document.getElementById('navAdminBtn');
+            if (adminBtn) adminBtn.classList.remove('hidden'); 
+            showPage('admin'); 
+        }
+        function handleJoinEvent(id) { alert("Joined match successfully!"); }
+
+        function populateDropdowns() {
+            const levelSelect = document.getElementById('regLevel'); 
+            const posSelect = document.getElementById('regPosition'); 
+            const genderSelect = document.getElementById('regGender'); 
+            const admLevelSelect = document.getElementById('admSelectLevel');
+            
+            if(levelSelect) levelSelect.innerHTML = dictionary[currentLang].levels.map(l => `<option value="${l}">${l}</option>`).join('');
+            if(posSelect) posSelect.innerHTML = dictionary[currentLang].positions.map(p => `<option value="${p}">${p}</option>`).join('');
+            if(admLevelSelect) admLevelSelect.innerHTML = dictionary[currentLang].levels.map(l => `<option value="${l}">${l}</option>`).join('');
+            if(genderSelect) genderSelect.innerHTML = dictionary[currentLang].genders.map(g => `<option value="${g}">${g}</option>`).join('');
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'tr' : 'en';
+            document.getElementById('navInfoBtn').innerText = dictionary[currentLang].navInfo; 
+            document.getElementById('navEventsBtn').innerText = dictionary[currentLang].navEvents; 
+            document.getElementById('navLoginBtn').innerText = dictionary[currentLang].navLogin; 
+            document.getElementById('langBtn').innerText = dictionary[currentLang].btnText; 
+            document.getElementById('footerText').innerText = dictionary[currentLang].footerText; 
+            document.getElementById('welcomeDesc').innerText = dictionary[currentLang].welcomeDesc; 
+            document.getElementById('ctaBtn').innerText = dictionary[currentLang].ctaBtn; 
+            document.getElementById('learnMoreBtn').innerText = dictionary[currentLang].learnMoreBtn; 
+            document.getElementById('txtCreatedBy').innerText = dictionary[currentLang].txtCreatedBy;
+            
+            document.getElementById('regTitle').innerText = dictionary[currentLang].regTitle;
+            document.getElementById('lblLabelName').innerText = dictionary[currentLang].lblName;
+            document.getElementById('lblLabelAge').innerText = dictionary[currentLang].lblAge;
+            document.getElementById('lblLabelGender').innerText = dictionary[currentLang].lblGender;
+            document.getElementById('lblLabelPhone').innerText = dictionary[currentLang].lblPhone;
+            document.getElementById('lblLabelEmail').innerText = dictionary[currentLang].lblEmail;
+            document.getElementById('lblLabelLevel').innerText = dictionary[currentLang].lblLevel;
+            document.getElementById('lblLabelPosition').innerText = dictionary[currentLang].lblPosition;
+            document.getElementById('regSubmitBtn').innerText = dictionary[currentLang].regSubmit;
+            
+            document.getElementById('loginTitle').innerText = dictionary[currentLang].loginTitle;
+            document.getElementById('lblLoginEmail').innerText = dictionary[currentLang].lblEmail;
+            document.getElementById('loginSubmitBtn').innerText = dictionary[currentLang].loginSubmit;
+            
+            document.getElementById('eventsTitle').innerText = dictionary[currentLang].eventsTitle;
+            document.getElementById('admTitle').innerText = dictionary[currentLang].admTitle;
+            document.getElementById('tabCreateEventBtn').innerText = dictionary[currentLang].tabCreateEvent;
+            document.getElementById('tabPlayersBtn').innerText = dictionary[currentLang].tabPlayers;
+            document.getElementById('admCreateBtn').innerText = dictionary[currentLang].admCreateBtn;
+            
+            populateDropdowns();
+            document.documentElement.lang = currentLang;
+        }
+        populateDropdowns();
+    </script>
+</body>
+</html>
