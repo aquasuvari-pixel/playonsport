@@ -1,303 +1,733 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlayOnSport V1 — Operasyon & Organizasyon Paneli</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .active-tab { border-bottom: 3px solid #3b82f6; color: #1d4ed8; font-weight: 600; }
-        .instruction-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#020817" />
+  <title>PlayOnSport — Active life, active community</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style>
+    :root {
+      --bg: #020817;
+      --panel: rgba(7, 19, 39, .86);
+      --panel-2: rgba(10, 27, 54, .92);
+      --line: rgba(78, 141, 255, .22);
+      --blue: #1677ff;
+      --cyan: #38bdf8;
+      --orange: #ff7a00;
+      --green: #22c55e;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: #f8fafc;
+      background:
+        radial-gradient(circle at 50% -10%, rgba(22,119,255,.26), transparent 34%),
+        radial-gradient(circle at 90% 30%, rgba(255,122,0,.10), transparent 28%),
+        linear-gradient(180deg, #020817 0%, #030b18 55%, #020611 100%);
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .15;
+      background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, black, transparent 78%);
+    }
+    .glass {
+      background: linear-gradient(180deg, rgba(10,28,55,.90), rgba(4,14,31,.92));
+      border: 1px solid var(--line);
+      box-shadow: 0 18px 60px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.04);
+      backdrop-filter: blur(16px);
+    }
+    .soft-card {
+      background: rgba(6, 17, 35, .72);
+      border: 1px solid rgba(113, 160, 255, .16);
+    }
+    .blue-glow { box-shadow: 0 0 0 1px rgba(29,120,255,.25), 0 12px 36px rgba(29,120,255,.16); }
+    .orange-glow { box-shadow: 0 0 0 1px rgba(255,122,0,.25), 0 12px 36px rgba(255,122,0,.14); }
+    .page { display: none; }
+    .page.active { display: block; animation: pageIn .25s ease-out; }
+    @keyframes pageIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .chip { border: 1px solid rgba(148,163,184,.20); background: rgba(15,23,42,.70); }
+    .status-pending { color: #fbbf24; background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.30); }
+    .status-approved, .status-published { color: #60a5fa; background: rgba(59,130,246,.12); border-color: rgba(59,130,246,.28); }
+    .status-finalized, .status-confirmed { color: #4ade80; background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.28); }
+    .status-rejected, .status-cancelled { color: #f87171; background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.28); }
+    .status-held, .status-reserved { color: #fb923c; background: rgba(249,115,22,.12); border-color: rgba(249,115,22,.28); }
+    .nav-btn.active { color: white; background: linear-gradient(180deg, rgba(23,104,255,.28), rgba(23,104,255,.08)); }
+    .admin-tab.active { color: white; border-color: #1677ff; background: rgba(22,119,255,.12); }
+    .selected-slot { border-color: #ff7a00 !important; background: rgba(255,122,0,.10) !important; box-shadow: 0 0 0 2px rgba(255,122,0,.10); }
+    .logo-main { filter: drop-shadow(0 12px 30px rgba(0,0,0,.40)); }
+    input, select, textarea {
+      color-scheme: dark;
+    }
+    input::placeholder, textarea::placeholder { color: #64748b; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { scrollbar-width: none; }
+    @media (max-width: 767px) {
+      body { padding-bottom: 82px; }
+    }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
+<body class="font-sans antialiased">
+  <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[100] hidden max-w-[92vw] rounded-2xl border border-blue-400/30 bg-slate-950/95 px-4 py-3 text-sm shadow-2xl"></div>
 
-    <!-- Header -->
-    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <i class="fa-solid fa-volleyball text-amber-500 text-2xl"></i>
-                <span class="text-xl font-bold tracking-wide">PlayOnSport <span class="text-xs bg-amber-500 text-slate-900 px-2 py-0.5 rounded font-mono">V1 ALGORİTMASI</span></span>
-            </div>
-            <div class="text-xs text-slate-400 hidden md:block">
-                <i class="fa-solid fa-shield-halved text-emerald-400 mr-1"></i> %100 Ücretsiz Organizasyon & Otomatik Talimat Sistemi
-            </div>
+  <header class="sticky top-0 z-50 border-b border-blue-400/10 bg-[#020817]/88 backdrop-blur-xl">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+      <button onclick="navigate('home')" class="flex items-center gap-2 text-left" aria-label="Home">
+        <img src="logo-main.png" alt="PlayOnSport" class="h-10 w-auto max-w-[176px] object-contain" />
+      </button>
+      <nav class="hidden items-center gap-1 md:flex">
+        <button class="top-nav rounded-xl px-3 py-2 text-sm text-slate-300 hover:bg-white/5 hover:text-white" data-page="home" onclick="navigate('home')" data-i18n="navHome">Home</button>
+        <button class="top-nav rounded-xl px-3 py-2 text-sm text-slate-300 hover:bg-white/5 hover:text-white" data-page="events" onclick="navigate('events')" data-i18n="navEvents">Events</button>
+        <button class="top-nav rounded-xl px-3 py-2 text-sm text-slate-300 hover:bg-white/5 hover:text-white" data-page="create" onclick="navigate('create')" data-i18n="navCreate">Create</button>
+        <button id="desktopDashboardBtn" class="top-nav hidden rounded-xl px-3 py-2 text-sm text-slate-300 hover:bg-white/5 hover:text-white" data-page="dashboard" onclick="openDashboard()" data-i18n="navDashboard">Dashboard</button>
+      </nav>
+      <div class="flex items-center gap-2">
+        <div class="flex rounded-xl border border-blue-400/20 bg-slate-950/70 p-1 text-[11px] font-bold">
+          <button onclick="setLanguage('en')" class="lang-btn rounded-lg px-2.5 py-1.5" data-lang="en">EN</button>
+          <button onclick="setLanguage('tr')" class="lang-btn rounded-lg px-2.5 py-1.5" data-lang="tr">TR</button>
+          <button onclick="setLanguage('hi')" class="lang-btn rounded-lg px-2.5 py-1.5" data-lang="hi">हिन्दी</button>
         </div>
-    </header>
-
-    <!-- Tab Navigation -->
-    <div class="bg-white border-b border-slate-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 flex space-x-8 overflow-x-auto">
-            <button onclick="switchTab('user')" id="tab-user" class="py-4 px-2 active-tab flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-users"></i> 1. Kullanıcı Ekranı (Etkinlik Katılımı)
-            </button>
-            <button onclick="switchTab('facility')" id="tab-facility" class="py-4 px-2 text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-building-circle-check"></i> 2. Salon Yöneticisi Paneli
-            </button>
-            <button onclick="switchTab('admin')" id="tab-admin" class="py-4 px-2 text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-user-gear"></i> 3. Admin Onay & Talimat Paneli
-            </button>
-        </div>
+        <button id="accountButton" onclick="handleAccountButton()" class="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold shadow-lg shadow-blue-600/20 hover:bg-blue-500" data-i18n="login">Login</button>
+      </div>
     </div>
+  </header>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+  <main class="relative z-10 mx-auto max-w-6xl px-4 py-6 md:py-9">
+    <!-- HOME -->
+    <section id="homePage" class="page active">
+      <div class="grid items-center gap-7 lg:grid-cols-[1.08fr_.92fr]">
+        <div class="space-y-6">
+          <div class="inline-flex items-center gap-2 rounded-full border border-blue-400/25 bg-blue-500/10 px-3 py-1.5 text-xs font-bold text-blue-200">
+            <span class="h-2 w-2 rounded-full bg-green-400 shadow-[0_0_12px_rgba(74,222,128,.9)]"></span>
+            <span data-i18n="freePlatform">Free community sports platform</span>
+          </div>
 
-        <!-- TAB 1: KULLANICI EKRANI -->
-        <section id="sec-user" class="space-y-6">
-            <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <div>
-                    <h1 class="text-2xl font-bold text-slate-900">Aktif Etkinlikler & Katılım</h1>
-                    <p class="text-sm text-slate-500">Sistem üzerinden onaylanmış, katılımcı bekleyen spor etkinlikleri.</p>
-                </div>
-                <button onclick="openModal('modal-create-event')" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i> Etkinlik Talebi Oluştur
-                </button>
+          <div class="text-center lg:text-left">
+            <img src="logo-main.png" alt="PlayOnSport" class="logo-main mx-auto w-full max-w-[470px] lg:mx-0" />
+            <h1 class="mt-4 text-3xl font-black leading-tight tracking-tight sm:text-5xl">
+              <span data-i18n="heroTitle1">Meet players.</span>
+              <span class="text-blue-400" data-i18n="heroTitle2">Join games.</span><br />
+              <span class="text-orange-400" data-i18n="heroTitle3">Build community.</span>
+            </h1>
+            <p class="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base lg:mx-0" data-i18n="heroDesc">
+              Find approved local sports venues, create an event and bring the right people together. PlayOnSport does not collect payments.
+            </p>
+          </div>
+
+          <div class="grid gap-3 sm:grid-cols-3">
+            <button onclick="requireUserThen('create')" class="glass orange-glow rounded-2xl p-4 text-left transition hover:-translate-y-0.5">
+              <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/20 text-xl">📅</div>
+              <div class="font-bold" data-i18n="createEvent">Create Event</div>
+              <div class="mt-1 text-xs text-slate-400" data-i18n="createEventSub">Choose an approved venue slot</div>
+            </button>
+            <button onclick="navigate('events')" class="glass blue-glow rounded-2xl p-4 text-left transition hover:-translate-y-0.5">
+              <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/20 text-xl">🔎</div>
+              <div class="font-bold" data-i18n="findEvents">Find Events</div>
+              <div class="mt-1 text-xs text-slate-400" data-i18n="findEventsSub">Discover approved local games</div>
+            </button>
+            <button onclick="navigate('login')" class="glass rounded-2xl p-4 text-left transition hover:-translate-y-0.5">
+              <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/20 text-xl">👤</div>
+              <div class="font-bold" data-i18n="signUp">Sign Up / Login</div>
+              <div class="mt-1 text-xs text-slate-400" data-i18n="signUpSub">Create your sports profile</div>
+            </button>
+          </div>
+
+          <div class="glass flex items-start gap-4 rounded-2xl p-5">
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-blue-400/25 bg-blue-500/10 text-2xl">🛡️</div>
+            <div>
+              <h3 class="font-black" data-i18n="noPayments">No in-app payments</h3>
+              <p class="mt-1 text-sm leading-6 text-slate-400" data-i18n="noPaymentsDesc">The platform only calculates and communicates venue and per-person amounts. Payments are handled outside PlayOnSport.</p>
             </div>
-
-            <!-- Spor Dalları Filtre -->
-            <div class="flex gap-2 overflow-x-auto pb-2">
-                <button class="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium">Tüm Sporlar</button>
-                <button class="px-4 py-2 bg-white text-slate-600 hover:bg-slate-50 rounded-lg text-sm font-medium border border-slate-200">Voleybol</button>
-                <button class="px-4 py-2 bg-white text-slate-600 hover:bg-slate-50 rounded-lg text-sm font-medium border border-slate-200">Futbol</button>
-                <button class="px-4 py-2 bg-white text-slate-600 hover:bg-slate-50 rounded-lg text-sm font-medium border border-slate-200">Basketbol</button>
-            </div>
-
-            <!-- Etkinlik Kartları Listesi -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Kart 1 -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col justify-between">
-                    <div class="p-5 space-y-4">
-                        <div class="flex justify-between items-start">
-                            <span class="bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
-                                <i class="fa-solid fa-clock"></i> Katılımcı Bekleniyor
-                            </span>
-                            <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">#POS-V84</span>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-lg text-slate-900">Dinamik Voleybol Maçı (Orta Seviye)</h3>
-                            <p class="text-sm text-slate-500 flex items-center gap-1 mt-1">
-                                <i class="fa-solid fa-location-dot text-red-500"></i> Dinamik Spor Kompleksi — Saha A
-                            </p>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-lg border border-slate-100">
-                            <div><span class="text-slate-400 block">Tarih & Saat:</span> <strong class="text-slate-700">15 Ağu / 20:00 - 21:30</strong></div>
-                            <div><span class="text-slate-400 block">Cinsiyet:</span> <strong class="text-slate-700">Karma Kadro</strong></div>
-                            <div><span class="text-slate-400 block">Salon Ücreti:</span> <strong class="text-slate-700">1.200 TL</strong></div>
-                            <div><span class="text-slate-400 block">Kişi Başı Tutar:</span> <strong class="text-emerald-600 font-bold">100 TL</strong></div>
-                        </div>
-                        <!-- Kadro Durumu -->
-                        <div class="space-y-1">
-                            <div class="flex justify-between text-xs font-semibold">
-                                <span>Katılımcı Sayısı</span>
-                                <span class="text-blue-600">8 / 12 Kişi</span>
-                            </div>
-                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                                <div class="bg-blue-600 h-full rounded-full" style="width: 66%;"></div>
-                            </div>
-                            <p class="text-[11px] text-slate-400">Min. 10 kişi ulaşıldığında 2. talimat yayınlanır.</p>
-                        </div>
-                    </div>
-                    <div class="p-4 bg-slate-50 border-t border-slate-100 flex gap-2">
-                        <button onclick="alert('Kadroya başarıyla katıldınız!')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg text-sm transition">
-                            Etkinliğe Katıl
-                        </button>
-                        <button onclick="openModal('modal-instruction-1')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-2 rounded-lg text-sm font-medium transition" title="Birinci Talimatı Gör">
-                            <i class="fa-solid fa-file-invoice"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Kart 2 (Kesinleşmiş) -->
-                <div class="bg-white rounded-xl shadow-sm border border-emerald-200 overflow-hidden flex flex-col justify-between">
-                    <div class="p-5 space-y-4">
-                        <div class="flex justify-between items-start">
-                            <span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
-                                <i class="fa-solid fa-circle-check"></i> Kesinleşti (2. Talimat)
-                            </span>
-                            <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">#POS-V85</span>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-lg text-slate-900">Gece Voleybolu Turnuva Prova</h3>
-                            <p class="text-sm text-slate-500 flex items-center gap-1 mt-1">
-                                <i class="fa-solid fa-location-dot text-red-500"></i> ASELSAN Spor Salonu
-                            </p>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-lg border border-slate-100">
-                            <div><span class="text-slate-400 block">Tarih & Saat:</span> <strong class="text-slate-700">14 Ağu / 21:00 - 22:30</strong></div>
-                            <div><span class="text-slate-400 block">Cinsiyet:</span> <strong class="text-slate-700">Kadınlar</strong></div>
-                            <div><span class="text-slate-400 block">Salon Ücreti:</span> <strong class="text-slate-700">1.440 TL</strong></div>
-                            <div><span class="text-slate-400 block">Kişi Başı Net:</span> <strong class="text-emerald-600 font-bold">120 TL</strong></div>
-                        </div>
-                        <div class="space-y-1">
-                            <div class="flex justify-between text-xs font-semibold">
-                                <span>Kadro Tamamlandı</span>
-                                <span class="text-emerald-600">12 / 12 Kişi</span>
-                            </div>
-                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                                <div class="bg-emerald-500 h-full rounded-full" style="width: 100%;"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-4 bg-slate-50 border-t border-slate-100 flex gap-2">
-                        <button disabled class="w-full bg-slate-200 text-slate-500 font-medium py-2 rounded-lg text-sm cursor-not-allowed">
-                            Kadro Doldu
-                        </button>
-                        <button onclick="openModal('modal-instruction-2')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition" title="Final Talimatını Gör">
-                            <i class="fa-solid fa-file-contract"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 2: SALON YÖNETİCİSİ PANELİ -->
-        <section id="sec-facility" class="space-y-6 hidden">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h1 class="text-2xl font-bold text-slate-900">Salon Yöneticisi Paneli</h1>
-                <p class="text-sm text-slate-500">Tesisinize ait boş saatleri girin ve admin onayına gönderin.</p>
-                
-                <form class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tarih</label>
-                        <input type="date" class="w-full p-2.5 border rounded-lg text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Başlangıç - Bitiş Saati</label>
-                        <input type="text" placeholder="20:00 - 21:30" class="w-full p-2.5 border rounded-lg text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Salon Ücreti (TL)</label>
-                        <input type="number" placeholder="1200" class="w-full p-2.5 border rounded-lg text-sm">
-                    </div>
-                    <div class="md:col-span-3 text-right">
-                        <button type="button" onclick="alert('Boş saat kaydedildi, Admin onayına gönderildi!')" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition">
-                            <i class="fa-solid fa-paper-plane mr-1"></i> Admin Onayına Gönder
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </section>
-
-        <!-- TAB 3: ADMİN PANELİ -->
-        <section id="sec-admin" class="space-y-6 hidden">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h1 class="text-2xl font-bold text-slate-900">Admin Onay & Kontrol Paneli</h1>
-                <p class="text-sm text-slate-500">Gelen salon saatlerini ve kullanıcı etkinlik taleplerini yönetin.</p>
-
-                <div class="mt-6 space-y-4">
-                    <h2 class="font-bold text-lg text-slate-800">Bekleyen Etkinlik Talepleri</h2>
-                    <div class="border rounded-xl p-4 bg-amber-50/50 border-amber-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div class="space-y-1">
-                            <div class="flex items-center gap-2">
-                                <span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">ONAY BEKLİYOR</span>
-                                <h4 class="font-bold text-slate-900">Akşam Voleybolu Karşılaşması</h4>
-                            </div>
-                            <p class="text-xs text-slate-600">Salon: Dinamik Spor Kompleksi | Tarih: 18 Ağu 2026 (20:00 - 21:30)</p>
-                            <p class="text-xs text-slate-500">Kontenjan: Min 10 / Max 12 | Ücret: 1.200 TL (Kişi Başı ~100 TL)</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="alert('Etkinlik onaylandı! Birinci Talimat oluşturuldu ve yayınlandı.')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-semibold transition">
-                                <i class="fa-solid fa-check mr-1"></i> Onayla & 1. Talimatı Üret
-                            </button>
-                            <button onclick="alert('Talep reddedildi. Salon saati tekrar serbest bırakıldı.')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-semibold transition">
-                                Reddet
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- MODAL 1: Birinci Talimat -->
-    <div id="modal-instruction-1" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 text-white max-w-lg w-full rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
-            <div class="p-6 space-y-4">
-                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-file-invoice text-amber-400 text-xl"></i>
-                        <h3 class="font-bold text-lg text-slate-100">BİRİNCİ TALİMAT</h3>
-                    </div>
-                    <button onclick="closeModal('modal-instruction-1')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-                </div>
-                <div class="text-xs space-y-2 font-mono text-slate-300 bg-slate-950 p-4 rounded-xl border border-slate-800 leading-relaxed">
-                    <p><strong class="text-amber-400">Etkinlik Kodu:</strong> #POS-2026-V84</p>
-                    <p><strong class="text-amber-400">Salon:</strong> Dinamik Spor Kompleksi — Saha A</p>
-                    <p><strong class="text-amber-400">Tarih & Saat:</strong> 15 Ağustos 2026 / 20:00 - 21:30</p>
-                    <p><strong class="text-amber-400">Spor Dalı:</strong> Voleybol (Karma - Orta Seviye)</p>
-                    <p><strong class="text-amber-400">Kontenjan:</strong> Min 10 / Max 12 Kişi</p>
-                    <p><strong class="text-amber-400">Salon Ücreti:</strong> 1.200 TL</p>
-                    <p><strong class="text-amber-400">Kişi Başı Tahmini Tutar:</strong> 100 TL (12 Kişi Katılımında)</p>
-                    <p><strong class="text-amber-400">Son Katılım / İptal Tarihi:</strong> 13 Ağustos 2026 / 20:00 (48 Saat Kala)</p>
-                    <hr class="border-slate-800 my-2">
-                    <p class="text-[11px] text-slate-400">* Para PlayOnSport üzerinden toplanmaz. Tutar maç günü organizatöre elden/EFT olarak teslim edilecektir.</p>
-                </div>
-            </div>
-            <div class="p-4 bg-slate-950 border-t border-slate-800 text-right">
-                <button onclick="closeModal('modal-instruction-1')" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-xs font-semibold">Kapat</button>
-            </div>
+          </div>
         </div>
-    </div>
 
-    <!-- MODAL 2: Kesinleşen İkinci Talimat -->
-    <div id="modal-instruction-2" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 text-white max-w-lg w-full rounded-2xl shadow-2xl overflow-hidden border border-emerald-500/30">
-            <div class="p-6 space-y-4">
-                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-file-contract text-emerald-400 text-xl"></i>
-                        <div>
-                            <h3 class="font-bold text-lg text-slate-100">İKİNCİ TALİMAT</h3>
-                            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-mono">DURUM: KESİNLEŞTİ</span>
-                        </div>
-                    </div>
-                    <button onclick="closeModal('modal-instruction-2')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-                </div>
-                <div class="text-xs space-y-2 font-mono text-slate-300 bg-slate-950 p-4 rounded-xl border border-slate-800 leading-relaxed">
-                    <p><strong class="text-emerald-400">Etkinlik Kodu:</strong> #POS-2026-V85</p>
-                    <p><strong class="text-emerald-400">Salon & Adres:</strong> ASELSAN Spor Salonu (Saha B)</p>
-                    <p><strong class="text-emerald-400">Salona Giriş Saati:</strong> 20:45 (Soyunma Odaları Açık)</p>
-                    <p><strong class="text-emerald-400">Maç Saati:</strong> 21:00 - 22:30</p>
-                    <p><strong class="text-emerald-400">Kadro (12/12 Tam):</strong> Volkan D., Harun K., Ayşe T., Mehmet A. (+8)</p>
-                    <p><strong class="text-emerald-400">Salon Net Ücreti:</strong> 1.440 TL</p>
-                    <p><strong class="text-emerald-400">Kişi Başı Net Tutar:</strong> 120 TL</p>
-                    <p><strong class="text-emerald-400">Organizatör İletişim:</strong> Volkan Dadalı (05xx xxx xx xx)</p>
-                    <hr class="border-slate-800 my-2">
-                    <p class="text-[11px] text-amber-300"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Salonda yalnızca temiz tabanlı iç saha voleybol ayakkabısı kullanılabilir.</p>
-                </div>
+        <div class="glass relative overflow-hidden rounded-[2rem] p-5 md:p-7">
+          <div class="absolute -right-16 -top-16 h-52 w-52 rounded-full bg-blue-500/20 blur-3xl"></div>
+          <div class="absolute -bottom-20 -left-12 h-48 w-48 rounded-full bg-orange-500/15 blur-3xl"></div>
+          <div class="relative">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs font-bold uppercase tracking-[.2em] text-blue-300" data-i18n="howWorks">How it works</p>
+                <h2 class="mt-1 text-2xl font-black" data-i18n="approvedFlow">Approved event flow</h2>
+              </div>
+              <div class="flex gap-2 text-2xl"><span>🏐</span><span>⚽</span><span>🏀</span><span>🏸</span></div>
             </div>
-            <div class="p-4 bg-slate-950 border-t border-slate-800 text-right">
-                <button onclick="closeModal('modal-instruction-2')" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-xs font-semibold">Kapat</button>
+            <div class="mt-6 space-y-3">
+              <div class="soft-card flex gap-4 rounded-2xl p-4">
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 font-black">1</div>
+                <div><div class="font-bold" data-i18n="flow1Title">Venue manager adds free time</div><div class="mt-1 text-xs leading-5 text-slate-400" data-i18n="flow1Desc">Admin checks and approves the slot.</div></div>
+              </div>
+              <div class="soft-card flex gap-4 rounded-2xl p-4">
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-500 font-black">2</div>
+                <div><div class="font-bold" data-i18n="flow2Title">Registered user creates an event</div><div class="mt-1 text-xs leading-5 text-slate-400" data-i18n="flow2Desc">The selected slot is held until admin approval.</div></div>
+              </div>
+              <div class="soft-card flex gap-4 rounded-2xl p-4">
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cyan-500 font-black">3</div>
+                <div><div class="font-bold" data-i18n="flow3Title">First instruction is published</div><div class="mt-1 text-xs leading-5 text-slate-400" data-i18n="flow3Desc">The event becomes visible and participants join.</div></div>
+              </div>
+              <div class="soft-card flex gap-4 rounded-2xl p-4">
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-green-500 font-black">4</div>
+                <div><div class="font-bold" data-i18n="flow4Title">Roster completes and final instruction is sent</div><div class="mt-1 text-xs leading-5 text-slate-400" data-i18n="flow4Desc">Participants, admin and venue manager receive final details.</div></div>
+              </div>
             </div>
+            <div class="mt-5 rounded-2xl border border-yellow-400/25 bg-yellow-400/10 p-4 text-sm text-yellow-100">
+              <strong data-i18n="rule48">48-hour rule:</strong>
+              <span data-i18n="rule48Desc"> All approvals and final arrangements must be completed at least 48 hours before venue use.</span>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div class="mt-8 grid gap-4 md:grid-cols-3">
+        <div class="glass rounded-2xl p-5"><div class="text-2xl">🏟️</div><h3 class="mt-3 font-black" data-i18n="venueNetwork">Approved venue network</h3><p class="mt-2 text-sm leading-6 text-slate-400" data-i18n="venueNetworkDesc">Only admin-approved venues and time slots appear to users.</p></div>
+        <div class="glass rounded-2xl p-5"><div class="text-2xl">✅</div><h3 class="mt-3 font-black" data-i18n="twoApproval">Two-stage approval</h3><p class="mt-2 text-sm leading-6 text-slate-400" data-i18n="twoApprovalDesc">Venue availability and user-created events are checked separately.</p></div>
+        <div class="glass rounded-2xl p-5"><div class="text-2xl">📋</div><h3 class="mt-3 font-black" data-i18n="instructions">Clear instructions</h3><p class="mt-2 text-sm leading-6 text-slate-400" data-i18n="instructionsDesc">The system produces an initial and a final instruction for every confirmed event.</p></div>
+      </div>
+    </section>
+
+    <!-- EVENTS -->
+    <section id="eventsPage" class="page">
+      <div class="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div><p class="text-xs font-bold uppercase tracking-[.22em] text-blue-300" data-i18n="communityGames">Community games</p><h2 class="mt-1 text-3xl font-black" data-i18n="availableEvents">Available events</h2><p class="mt-2 text-sm text-slate-400" data-i18n="eventsDesc">Only admin-approved events are listed here.</p></div>
+        <button onclick="requireUserThen('create')" class="rounded-xl bg-orange-500 px-5 py-3 text-sm font-black hover:bg-orange-400" data-i18n="createEvent">Create Event</button>
+      </div>
+      <div id="eventsList" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"></div>
+    </section>
+
+    <!-- CREATE EVENT -->
+    <section id="createPage" class="page">
+      <div class="mx-auto max-w-4xl">
+        <div class="mb-6"><p class="text-xs font-bold uppercase tracking-[.22em] text-orange-300" data-i18n="requestEvent">Event request</p><h2 class="mt-1 text-3xl font-black" data-i18n="createFromSlot">Create from an approved venue slot</h2><p class="mt-2 text-sm leading-6 text-slate-400" data-i18n="createFromSlotDesc">Select one of the admin-approved venue buttons below. User-created events are published only after admin approval.</p></div>
+        <form id="createEventForm" onsubmit="submitEventRequest(event)" class="glass rounded-3xl p-5 md:p-7">
+          <input type="hidden" id="selectedSlotId" />
+          <div class="mb-5">
+            <label class="mb-2 block text-xs font-black uppercase tracking-wider text-slate-400" data-i18n="approvedSlots">Approved venue slots</label>
+            <div id="approvedSlots" class="grid gap-3 md:grid-cols-2"></div>
+          </div>
+          <div class="grid gap-4 md:grid-cols-2">
+            <label class="block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="eventTitle">Event title</span><input id="eventTitle" required maxlength="80" class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3 outline-none focus:border-blue-400" placeholder="Friday Community Volleyball" /></label>
+            <label class="block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="sport">Sport</span><select id="eventSport" required class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3 outline-none focus:border-blue-400"><option>Volleyball</option><option>Football</option><option>Basketball</option><option>Badminton</option><option>Tennis</option><option>Other</option></select></label>
+            <label class="block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="level">Level</span><select id="eventLevel" class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3"><option value="Beginner">Beginner</option><option value="Intermediate">Intermediate</option><option value="Good">Good</option><option value="Advanced">Advanced</option><option value="Mixed">Mixed</option></select></label>
+            <label class="block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="groupType">Group type</span><select id="eventGender" class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3"><option value="Mixed">Mixed</option><option value="Women">Women</option><option value="Men">Men</option></select></label>
+            <label class="block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="minimumPlayers">Minimum players</span><input id="eventMin" type="number" min="2" max="40" value="10" required class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3" /></label>
+            <label class="block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="maximumPlayers">Maximum players</span><input id="eventMax" type="number" min="2" max="40" value="12" required class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3" /></label>
+          </div>
+          <label class="mt-4 block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="description">Description</span><textarea id="eventDescription" rows="3" maxlength="300" class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3" placeholder="Game format, required level and notes..."></textarea></label>
+          <div id="eventCostPreview" class="mt-5 hidden rounded-2xl border border-orange-400/25 bg-orange-500/10 p-4 text-sm"></div>
+          <div class="mt-5 flex flex-col gap-3 sm:flex-row">
+            <button type="submit" class="flex-1 rounded-xl bg-orange-500 px-5 py-3 font-black hover:bg-orange-400" data-i18n="sendForApproval">Send for admin approval</button>
+            <button type="button" onclick="navigate('events')" class="rounded-xl border border-slate-600 px-5 py-3 font-bold text-slate-300 hover:bg-white/5" data-i18n="cancel">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- LOGIN / REGISTER -->
+    <section id="loginPage" class="page">
+      <div class="mx-auto grid max-w-5xl gap-6 lg:grid-cols-2">
+        <div class="glass rounded-3xl p-6 md:p-8">
+          <p class="text-xs font-bold uppercase tracking-[.22em] text-blue-300" data-i18n="accountAccess">Account access</p>
+          <h2 class="mt-1 text-3xl font-black" data-i18n="login">Login</h2>
+          <form onsubmit="loginUser(event)" class="mt-6 space-y-4">
+            <label class="block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="email">Email</span><input id="loginEmail" type="email" required class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3" placeholder="you@example.com" /></label>
+            <label class="block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="password">Password</span><input id="loginPassword" type="password" required class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3" placeholder="••••••" /></label>
+            <button class="w-full rounded-xl bg-blue-600 px-5 py-3 font-black hover:bg-blue-500" data-i18n="login">Login</button>
+          </form>
+          <div class="mt-6 rounded-2xl border border-blue-400/15 bg-slate-950/50 p-4 text-xs leading-6 text-slate-400">
+            <div class="mb-2 font-black text-slate-200" data-i18n="demoAccounts">Demo accounts</div>
+            <button onclick="fillDemo('admin')" class="mr-2 mt-2 rounded-lg bg-red-500/15 px-3 py-2 text-red-300">Admin</button>
+            <button onclick="fillDemo('venue')" class="mr-2 mt-2 rounded-lg bg-orange-500/15 px-3 py-2 text-orange-300" data-i18n="venueManager">Venue Manager</button>
+            <button onclick="fillDemo('user')" class="mt-2 rounded-lg bg-blue-500/15 px-3 py-2 text-blue-300" data-i18n="registeredUser">Registered User</button>
+          </div>
+        </div>
+        <div class="glass rounded-3xl p-6 md:p-8">
+          <p class="text-xs font-bold uppercase tracking-[.22em] text-orange-300" data-i18n="newMember">New member</p>
+          <h2 class="mt-1 text-3xl font-black" data-i18n="createAccount">Create account</h2>
+          <form onsubmit="registerUser(event)" class="mt-6 grid gap-4 sm:grid-cols-2">
+            <label class="block sm:col-span-2"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="fullName">Full name</span><input id="regName" required class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3" /></label>
+            <label class="block sm:col-span-2"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="email">Email</span><input id="regEmail" type="email" required class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3" /></label>
+            <label class="block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="password">Password</span><input id="regPassword" type="password" minlength="4" required class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3" /></label>
+            <label class="block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="phone">Phone</span><input id="regPhone" type="tel" required class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3" /></label>
+            <label class="block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="level">Level</span><select id="regLevel" class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3"><option>Beginner</option><option>Intermediate</option><option>Good</option><option>Advanced</option></select></label>
+            <label class="block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="mainSport">Main sport</span><select id="regSport" class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3"><option>Volleyball</option><option>Football</option><option>Basketball</option><option>Badminton</option><option>Tennis</option></select></label>
+            <button class="sm:col-span-2 rounded-xl bg-orange-500 px-5 py-3 font-black hover:bg-orange-400" data-i18n="createAccount">Create account</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- USER DASHBOARD -->
+    <section id="userPage" class="page">
+      <div class="mb-6 flex items-end justify-between gap-4"><div><p class="text-xs font-bold uppercase tracking-[.22em] text-blue-300" data-i18n="myArea">My area</p><h2 id="userWelcome" class="mt-1 text-3xl font-black">Dashboard</h2></div><button onclick="logout()" class="rounded-xl border border-red-400/25 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-300" data-i18n="logout">Logout</button></div>
+      <div class="grid gap-4 lg:grid-cols-[1fr_.9fr]">
+        <div class="space-y-4"><div class="glass rounded-2xl p-5"><div class="mb-4 flex items-center justify-between"><h3 class="font-black" data-i18n="myEvents">My events</h3><button onclick="navigate('create')" class="rounded-lg bg-orange-500 px-3 py-2 text-xs font-bold" data-i18n="create">Create</button></div><div id="myEventsList" class="space-y-3"></div></div></div>
+        <div class="space-y-4"><div class="glass rounded-2xl p-5"><h3 class="font-black" data-i18n="notifications">Notifications</h3><div id="userNotifications" class="mt-4 space-y-3"></div></div></div>
+      </div>
+    </section>
+
+    <!-- ADMIN DASHBOARD -->
+    <section id="adminPage" class="page">
+      <div class="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p class="text-xs font-bold uppercase tracking-[.22em] text-red-300">PlayOnSport Control</p><h2 class="mt-1 text-3xl font-black" data-i18n="adminPanel">Admin panel</h2><p class="mt-2 text-sm text-slate-400" data-i18n="adminPanelDesc">Approve venues, slots and events; generate instructions.</p></div><button onclick="logout()" class="rounded-xl border border-red-400/25 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-300" data-i18n="logout">Logout</button></div>
+      <div class="hide-scrollbar mb-5 flex gap-2 overflow-x-auto pb-1">
+        <button onclick="setAdminTab('overview')" class="admin-tab active shrink-0 rounded-xl border border-blue-400/20 px-4 py-2 text-sm font-bold" data-tab="overview" data-i18n="overview">Overview</button>
+        <button onclick="setAdminTab('slots')" class="admin-tab shrink-0 rounded-xl border border-blue-400/20 px-4 py-2 text-sm font-bold" data-tab="slots" data-i18n="slotApprovals">Slot approvals</button>
+        <button onclick="setAdminTab('events')" class="admin-tab shrink-0 rounded-xl border border-blue-400/20 px-4 py-2 text-sm font-bold" data-tab="events" data-i18n="eventApprovals">Event approvals</button>
+        <button onclick="setAdminTab('venues')" class="admin-tab shrink-0 rounded-xl border border-blue-400/20 px-4 py-2 text-sm font-bold" data-tab="venues" data-i18n="venueAccounts">Venues & accounts</button>
+        <button onclick="setAdminTab('instructions')" class="admin-tab shrink-0 rounded-xl border border-blue-400/20 px-4 py-2 text-sm font-bold" data-tab="instructions" data-i18n="instructions">Instructions</button>
+      </div>
+      <div id="adminContent"></div>
+    </section>
+
+    <!-- VENUE DASHBOARD -->
+    <section id="venuePage" class="page">
+      <div class="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p class="text-xs font-bold uppercase tracking-[.22em] text-orange-300" data-i18n="venuePortal">Venue portal</p><h2 id="venuePanelTitle" class="mt-1 text-3xl font-black" data-i18n="venueManagerPanel">Venue manager panel</h2><p class="mt-2 text-sm text-slate-400" data-i18n="venuePanelDesc">Add free hours and receive final event instructions.</p></div><button onclick="logout()" class="rounded-xl border border-red-400/25 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-300" data-i18n="logout">Logout</button></div>
+      <div class="grid gap-5 lg:grid-cols-[.8fr_1.2fr]">
+        <form onsubmit="submitVenueSlot(event)" class="glass rounded-3xl p-5">
+          <h3 class="text-xl font-black" data-i18n="addFreeTime">Add free time</h3>
+          <p class="mt-2 text-xs leading-5 text-slate-400" data-i18n="addFreeTimeDesc">The slot will appear to users only after admin approval.</p>
+          <div class="mt-5 space-y-4">
+            <label class="block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="date">Date</span><input id="slotDate" type="date" required class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3" /></label>
+            <div class="grid grid-cols-2 gap-3"><label><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="start">Start</span><input id="slotStart" type="time" required class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3" /></label><label><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="end">End</span><input id="slotEnd" type="time" required class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3" /></label></div>
+            <label class="block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="sport">Sport</span><select id="slotSport" class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3"><option>Volleyball</option><option>Football</option><option>Basketball</option><option>Badminton</option><option>Tennis</option><option>Multi-sport</option></select></label>
+            <label class="block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="venueFee">Venue fee</span><input id="slotFee" type="number" min="0" step="0.01" required class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3" /></label>
+            <label class="block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="note">Note</span><textarea id="slotNote" rows="2" class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3"></textarea></label>
+            <button class="w-full rounded-xl bg-orange-500 px-5 py-3 font-black hover:bg-orange-400" data-i18n="submitSlot">Submit slot for approval</button>
+          </div>
+        </form>
+        <div class="space-y-5">
+          <div class="glass rounded-3xl p-5"><h3 class="text-xl font-black" data-i18n="mySlots">My venue slots</h3><div id="venueSlotsList" class="mt-4 space-y-3"></div></div>
+          <div class="glass rounded-3xl p-5"><h3 class="text-xl font-black" data-i18n="finalInstructions">Final instructions</h3><div id="venueInstructions" class="mt-4 space-y-3"></div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="relative z-10 mt-10 border-t border-blue-400/10 bg-black/20">
+    <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-7 sm:flex-row">
+      <div class="flex items-center gap-4"><img src="logo-ads.png" alt="ADS" class="h-12 w-12 rounded-full object-contain" /><img src="logo-voleybol.png" alt="ADS Volleyball" class="h-8 w-auto max-w-[180px] object-contain" /></div>
+      <div class="text-center text-xs leading-6 text-slate-500 sm:text-right"><div>© 2026 PlayOnSport</div><div data-i18n="footerLine">Active life, active community. Built for local sports communities in the UK.</div></div>
     </div>
+  </footer>
 
-    <!-- Scriptler -->
-    <script>
-        function switchTab(tabName) {
-            document.getElementById('sec-user').classList.add('hidden');
-            document.getElementById('sec-facility').classList.add('hidden');
-            document.getElementById('sec-admin').classList.add('hidden');
+  <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-blue-400/15 bg-[#020817]/95 px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl md:hidden">
+    <div class="mx-auto grid max-w-md grid-cols-4 gap-1">
+      <button onclick="navigate('home')" data-page="home" class="nav-btn active rounded-xl px-2 py-2 text-[10px] font-bold text-slate-400"><div class="text-lg">⌂</div><span data-i18n="navHome">Home</span></button>
+      <button onclick="navigate('events')" data-page="events" class="nav-btn rounded-xl px-2 py-2 text-[10px] font-bold text-slate-400"><div class="text-lg">🏅</div><span data-i18n="navEvents">Events</span></button>
+      <button onclick="requireUserThen('create')" data-page="create" class="nav-btn rounded-xl px-2 py-2 text-[10px] font-bold text-slate-400"><div class="text-lg">＋</div><span data-i18n="navCreate">Create</span></button>
+      <button onclick="openDashboard()" data-page="dashboard" class="nav-btn rounded-xl px-2 py-2 text-[10px] font-bold text-slate-400"><div class="text-lg">◉</div><span data-i18n="navDashboard">Dashboard</span></button>
+    </div>
+  </nav>
 
-            document.getElementById('tab-user').classList.remove('active-tab');
-            document.getElementById('tab-facility').classList.remove('active-tab');
-            document.getElementById('tab-admin').classList.remove('active-tab');
+<script>
+  const STORAGE_KEY = 'playonsport_v2_prototype';
+  const SESSION_KEY = 'playonsport_v2_session';
+  const LANG_KEY = 'playonsport_v2_lang';
+  const CURRENCY = '£';
 
-            document.getElementById('sec-' + tabName).classList.remove('hidden');
-            document.getElementById('tab-' + tabName).classList.add('active-tab');
-        }
+  const translations = {
+    en: {
+      navHome:'Home', navEvents:'Events', navCreate:'Create', navDashboard:'Dashboard', login:'Login', logout:'Logout',
+      freePlatform:'Free community sports platform', heroTitle1:'Meet players.', heroTitle2:'Join games.', heroTitle3:'Build community.',
+      heroDesc:'Find approved local sports venues, create an event and bring the right people together. PlayOnSport does not collect payments.',
+      createEvent:'Create Event', createEventSub:'Choose an approved venue slot', findEvents:'Find Events', findEventsSub:'Discover approved local games', signUp:'Sign Up / Login', signUpSub:'Create your sports profile',
+      noPayments:'No in-app payments', noPaymentsDesc:'The platform only calculates and communicates venue and per-person amounts. Payments are handled outside PlayOnSport.',
+      howWorks:'How it works', approvedFlow:'Approved event flow', flow1Title:'Venue manager adds free time', flow1Desc:'Admin checks and approves the slot.', flow2Title:'Registered user creates an event', flow2Desc:'The selected slot is held until admin approval.', flow3Title:'First instruction is published', flow3Desc:'The event becomes visible and participants join.', flow4Title:'Roster completes and final instruction is sent', flow4Desc:'Participants, admin and venue manager receive final details.',
+      rule48:'48-hour rule:', rule48Desc:' All approvals and final arrangements must be completed at least 48 hours before venue use.',
+      venueNetwork:'Approved venue network', venueNetworkDesc:'Only admin-approved venues and time slots appear to users.', twoApproval:'Two-stage approval', twoApprovalDesc:'Venue availability and user-created events are checked separately.', instructions:'Instructions', instructionsDesc:'The system produces an initial and a final instruction for every confirmed event.',
+      communityGames:'Community games', availableEvents:'Available events', eventsDesc:'Only admin-approved events are listed here.', requestEvent:'Event request', createFromSlot:'Create from an approved venue slot', createFromSlotDesc:'Select one of the admin-approved venue buttons below. User-created events are published only after admin approval.', approvedSlots:'Approved venue slots', eventTitle:'Event title', sport:'Sport', level:'Level', groupType:'Group type', minimumPlayers:'Minimum players', maximumPlayers:'Maximum players', description:'Description', sendForApproval:'Send for admin approval', cancel:'Cancel',
+      accountAccess:'Account access', email:'Email', password:'Password', demoAccounts:'Demo accounts', venueManager:'Venue Manager', registeredUser:'Registered User', newMember:'New member', createAccount:'Create account', fullName:'Full name', phone:'Phone', mainSport:'Main sport',
+      myArea:'My area', myEvents:'My events', create:'Create', notifications:'Notifications', adminPanel:'Admin panel', adminPanelDesc:'Approve venues, slots and events; generate instructions.', overview:'Overview', slotApprovals:'Slot approvals', eventApprovals:'Event approvals', venueAccounts:'Venues & accounts',
+      venuePortal:'Venue portal', venueManagerPanel:'Venue manager panel', venuePanelDesc:'Add free hours and receive final event instructions.', addFreeTime:'Add free time', addFreeTimeDesc:'The slot will appear to users only after admin approval.', date:'Date', start:'Start', end:'End', venueFee:'Venue fee', note:'Note', submitSlot:'Submit slot for approval', mySlots:'My venue slots', finalInstructions:'Final instructions',
+      footerLine:'Active life, active community. Built for local sports communities in the UK.',
+      noEvents:'No approved events yet.', noSlots:'No approved venue slots are available.', loginRequired:'Please login first.', userOnly:'This action requires a registered user account.', selected:'Selected', venue:'Venue', time:'Time', remaining:'remaining', join:'Join event', joined:'Joined', full:'Full', details:'Details', participants:'Participants', perPerson:'Per person', totalVenueFee:'Venue fee', status:'Status', createdBy:'Created by', firstInstruction:'First instruction', secondInstruction:'Final instruction', pendingAdmin:'Waiting for admin approval', published:'Published', finalized:'Finalized', cancelled:'Cancelled', rejected:'Rejected', approved:'Approved', held:'Held', reserved:'Reserved', pending:'Pending',
+      eventRequestSent:'Event request sent to admin.', slotRequestSent:'Venue slot sent to admin.', loginSuccess:'Login successful.', registerSuccess:'Account created.', logoutSuccess:'Logged out.', invalidLogin:'Email or password is incorrect.', emailExists:'This email is already registered.', mustSelectSlot:'Select a venue slot.', invalidPlayerRange:'Maximum players must be greater than or equal to minimum players.', outside48:'The selected time must be at least 48 hours from now.', joinedEvent:'You joined the event.', alreadyJoined:'You are already in this event.', eventFull:'This event is full.', approvedEvent:'Event approved and published.', rejectedEvent:'Event rejected.', slotApproved:'Venue slot approved.', slotRejected:'Venue slot rejected.', finalGenerated:'Final instruction generated.', eventCancelled:'Event cancelled.',
+      addVenue:'Add venue and manager account', venueName:'Venue name', address:'Address', managerName:'Manager name', managerEmail:'Manager email', managerPassword:'Manager password', addVenueBtn:'Create venue account', venueCreated:'Venue and manager account created.', pendingSlots:'Pending slots', pendingEvents:'Pending events', activeEvents:'Active events', confirmedEvents:'Confirmed events', users:'Users', venues:'Venues', approve:'Approve', reject:'Reject', finalize:'Finalize', delete:'Delete', none:'None', adminCreated:'Admin-created', minReached:'Minimum roster reached', rosterIncomplete:'Roster is not sufficient yet.', confirmCancel:'Cancel this event?', instruction1Help:'Created when admin approves the event.', instruction2Help:'Created when the roster is complete or admin finalizes after minimum attendance.',
+      paymentNotice:'No payment is collected in the app. The organizer handles the stated amount outside PlayOnSport.', organizer:'Organizer', venueContact:'Venue contact', entryTime:'Venue entry time', eventTime:'Event time', roster:'Roster', amountToVenue:'Net amount to venue', collectionTarget:'Total amount to collect', '48hoursLeft':'Less than 48 hours remain', safeWindow:'More than 48 hours remain',
+      welcomeBack:'Welcome', eventNotFound:'Event not found.', slotUnavailable:'This slot is no longer available.', demoData:'This first version stores demo data in this browser using LocalStorage.'
+    },
+    tr: {
+      navHome:'Ana Sayfa', navEvents:'Etkinlikler', navCreate:'Oluştur', navDashboard:'Panel', login:'Giriş Yap', logout:'Çıkış',
+      freePlatform:'Ücretsiz spor topluluğu platformu', heroTitle1:'Sporcularla tanış.', heroTitle2:'Maçlara katıl.', heroTitle3:'Topluluk oluştur.',
+      heroDesc:'Onaylı yerel spor salonlarını bul, etkinlik oluştur ve doğru insanları bir araya getir. PlayOnSport ödeme tahsil etmez.',
+      createEvent:'Etkinlik Oluştur', createEventSub:'Onaylı salon saatini seç', findEvents:'Etkinlik Bul', findEventsSub:'Onaylanmış yerel maçları keşfet', signUp:'Kayıt Ol / Giriş Yap', signUpSub:'Sporcu profilini oluştur',
+      noPayments:'Uygulama içi ödeme yok', noPaymentsDesc:'Platform yalnızca salon ve kişi başı tutarları hesaplar ve bildirir. Ödemeler PlayOnSport dışında yapılır.',
+      howWorks:'Nasıl çalışır', approvedFlow:'Onaylı etkinlik akışı', flow1Title:'Salon yöneticisi boş saat ekler', flow1Desc:'Admin saati kontrol eder ve onaylar.', flow2Title:'Kayıtlı kullanıcı etkinlik oluşturur', flow2Desc:'Seçilen saat admin onayına kadar geçici olarak tutulur.', flow3Title:'Birinci talimat yayınlanır', flow3Desc:'Etkinlik görünür olur ve katılımcılar kaydolur.', flow4Title:'Kadro tamamlanır ve final talimatı gönderilir', flow4Desc:'Katılımcılar, admin ve salon yöneticisi son bilgileri alır.',
+      rule48:'48 saat kuralı:', rule48Desc:' Tüm onaylar ve kesin düzenlemeler salon kullanımından en az 48 saat önce tamamlanmalıdır.',
+      venueNetwork:'Onaylı salon ağı', venueNetworkDesc:'Kullanıcılara yalnızca admin tarafından onaylanan salonlar ve saatler gösterilir.', twoApproval:'İki aşamalı onay', twoApprovalDesc:'Salon uygunluğu ve kullanıcı etkinlikleri ayrı ayrı kontrol edilir.', instructions:'Talimatlar', instructionsDesc:'Sistem her kesinleşen etkinlik için birinci ve ikinci talimatı üretir.',
+      communityGames:'Topluluk maçları', availableEvents:'Aktif etkinlikler', eventsDesc:'Burada yalnızca admin tarafından onaylanan etkinlikler listelenir.', requestEvent:'Etkinlik talebi', createFromSlot:'Onaylı salon saatinden etkinlik oluştur', createFromSlotDesc:'Aşağıdaki admin onaylı salon butonlarından birini seç. Kullanıcı etkinliği ancak admin onayından sonra yayınlanır.', approvedSlots:'Onaylı salon saatleri', eventTitle:'Etkinlik başlığı', sport:'Spor dalı', level:'Seviye', groupType:'Grup türü', minimumPlayers:'Minimum katılımcı', maximumPlayers:'Maksimum katılımcı', description:'Açıklama', sendForApproval:'Admin onayına gönder', cancel:'Vazgeç',
+      accountAccess:'Hesap erişimi', email:'E-posta', password:'Şifre', demoAccounts:'Demo hesapları', venueManager:'Salon Yöneticisi', registeredUser:'Kayıtlı Kullanıcı', newMember:'Yeni üye', createAccount:'Hesap oluştur', fullName:'Ad soyad', phone:'Telefon', mainSport:'Ana spor dalı',
+      myArea:'Hesabım', myEvents:'Etkinliklerim', create:'Oluştur', notifications:'Bildirimler', adminPanel:'Admin paneli', adminPanelDesc:'Salonları, saatleri ve etkinlikleri onayla; talimatları oluştur.', overview:'Özet', slotApprovals:'Saat onayları', eventApprovals:'Etkinlik onayları', venueAccounts:'Salonlar ve hesaplar',
+      venuePortal:'Salon portalı', venueManagerPanel:'Salon yönetici paneli', venuePanelDesc:'Boş saatleri ekle ve kesinleşen etkinlik talimatlarını al.', addFreeTime:'Boş saat ekle', addFreeTimeDesc:'Saat yalnızca admin onayından sonra kullanıcılara görünür.', date:'Tarih', start:'Başlangıç', end:'Bitiş', venueFee:'Salon ücreti', note:'Not', submitSlot:'Saati admin onayına gönder', mySlots:'Salon saatlerim', finalInstructions:'Kesin talimatlar',
+      footerLine:'Aktif yaşam, aktif topluluk. Birleşik Krallık yerel spor toplulukları için hazırlandı.',
+      noEvents:'Henüz onaylanmış etkinlik yok.', noSlots:'Kullanılabilir onaylı salon saati yok.', loginRequired:'Önce giriş yapmalısınız.', userOnly:'Bu işlem için kayıtlı kullanıcı hesabı gerekir.', selected:'Seçildi', venue:'Salon', time:'Saat', remaining:'kalan', join:'Etkinliğe katıl', joined:'Katıldın', full:'Dolu', details:'Detaylar', participants:'Katılımcılar', perPerson:'Kişi başı', totalVenueFee:'Salon ücreti', status:'Durum', createdBy:'Oluşturan', firstInstruction:'Birinci talimat', secondInstruction:'Kesin talimat', pendingAdmin:'Admin onayı bekleniyor', published:'Yayında', finalized:'Kesinleşti', cancelled:'İptal edildi', rejected:'Reddedildi', approved:'Onaylandı', held:'Geçici ayrıldı', reserved:'Rezerve', pending:'Bekliyor',
+      eventRequestSent:'Etkinlik talebi admine gönderildi.', slotRequestSent:'Salon saati admine gönderildi.', loginSuccess:'Giriş başarılı.', registerSuccess:'Hesap oluşturuldu.', logoutSuccess:'Çıkış yapıldı.', invalidLogin:'E-posta veya şifre hatalı.', emailExists:'Bu e-posta zaten kayıtlı.', mustSelectSlot:'Bir salon saati seçmelisiniz.', invalidPlayerRange:'Maksimum katılımcı minimumdan küçük olamaz.', outside48:'Seçilen saat şu andan en az 48 saat sonra olmalıdır.', joinedEvent:'Etkinliğe katıldınız.', alreadyJoined:'Bu etkinliğe zaten katıldınız.', eventFull:'Bu etkinliğin kadrosu dolu.', approvedEvent:'Etkinlik onaylandı ve yayınlandı.', rejectedEvent:'Etkinlik reddedildi.', slotApproved:'Salon saati onaylandı.', slotRejected:'Salon saati reddedildi.', finalGenerated:'Kesin talimat oluşturuldu.', eventCancelled:'Etkinlik iptal edildi.',
+      addVenue:'Salon ve yönetici hesabı ekle', venueName:'Salon adı', address:'Adres', managerName:'Yönetici adı', managerEmail:'Yönetici e-postası', managerPassword:'Yönetici şifresi', addVenueBtn:'Salon hesabı oluştur', venueCreated:'Salon ve yönetici hesabı oluşturuldu.', pendingSlots:'Bekleyen saatler', pendingEvents:'Bekleyen etkinlikler', activeEvents:'Aktif etkinlikler', confirmedEvents:'Kesinleşen etkinlikler', users:'Kullanıcılar', venues:'Salonlar', approve:'Onayla', reject:'Reddet', finalize:'Kesinleştir', delete:'Sil', none:'Yok', adminCreated:'Admin oluşturdu', minReached:'Minimum kadro oluştu', rosterIncomplete:'Kadro henüz yeterli değil.', confirmCancel:'Bu etkinlik iptal edilsin mi?', instruction1Help:'Admin etkinliği onayladığında oluşturulur.', instruction2Help:'Kadro dolduğunda veya minimum katılımdan sonra admin kesinleştirdiğinde oluşturulur.',
+      paymentNotice:'Uygulama üzerinden ödeme alınmaz. Belirtilen tutarı organizatör PlayOnSport dışında yönetir.', organizer:'Organizatör', venueContact:'Salon yetkilisi', entryTime:'Salona giriş saati', eventTime:'Etkinlik saati', roster:'Kadro', amountToVenue:'Salona net ödenecek', collectionTarget:'Toplanacak toplam tutar', '48hoursLeft':'48 saatten az kaldı', safeWindow:'48 saatten fazla var',
+      welcomeBack:'Hoş geldin', eventNotFound:'Etkinlik bulunamadı.', slotUnavailable:'Bu salon saati artık kullanılamıyor.', demoData:'Bu ilk sürüm demo verilerini tarayıcıdaki LocalStorage alanında saklar.'
+    },
+    hi: {
+      navHome:'होम', navEvents:'इवेंट्स', navCreate:'बनाएँ', navDashboard:'डैशबोर्ड', login:'लॉग इन', logout:'लॉग आउट',
+      freePlatform:'मुफ़्त सामुदायिक खेल मंच', heroTitle1:'खिलाड़ियों से मिलें।', heroTitle2:'खेलों में शामिल हों।', heroTitle3:'समुदाय बनाएँ।',
+      heroDesc:'स्वीकृत स्थानीय खेल स्थलों को खोजें, इवेंट बनाएँ और सही लोगों को साथ लाएँ। PlayOnSport भुगतान एकत्र नहीं करता।',
+      createEvent:'इवेंट बनाएँ', createEventSub:'स्वीकृत स्थल समय चुनें', findEvents:'इवेंट खोजें', findEventsSub:'स्वीकृत स्थानीय खेल खोजें', signUp:'साइन अप / लॉग इन', signUpSub:'अपनी खेल प्रोफ़ाइल बनाएँ',
+      noPayments:'ऐप में भुगतान नहीं', noPaymentsDesc:'प्लेटफ़ॉर्म केवल स्थल और प्रति व्यक्ति राशि की गणना और सूचना देता है। भुगतान PlayOnSport के बाहर होता है।',
+      howWorks:'यह कैसे काम करता है', approvedFlow:'स्वीकृत इवेंट प्रक्रिया', flow1Title:'स्थल प्रबंधक खाली समय जोड़ता है', flow1Desc:'एडमिन समय की जाँच और स्वीकृति देता है।', flow2Title:'पंजीकृत उपयोगकर्ता इवेंट बनाता है', flow2Desc:'एडमिन स्वीकृति तक चुना गया समय रोका जाता है।', flow3Title:'पहला निर्देश प्रकाशित होता है', flow3Desc:'इवेंट दिखाई देता है और खिलाड़ी जुड़ते हैं।', flow4Title:'टीम पूरी होती है और अंतिम निर्देश भेजा जाता है', flow4Desc:'खिलाड़ी, एडमिन और स्थल प्रबंधक को अंतिम जानकारी मिलती है।',
+      rule48:'48 घंटे का नियम:', rule48Desc:' सभी स्वीकृतियाँ और अंतिम व्यवस्था स्थल उपयोग से कम से कम 48 घंटे पहले पूरी होनी चाहिए।',
+      venueNetwork:'स्वीकृत स्थल नेटवर्क', venueNetworkDesc:'उपयोगकर्ताओं को केवल एडमिन द्वारा स्वीकृत स्थल और समय दिखाई देते हैं।', twoApproval:'दो चरण की स्वीकृति', twoApprovalDesc:'स्थल उपलब्धता और उपयोगकर्ता इवेंट अलग-अलग जाँचे जाते हैं।', instructions:'निर्देश', instructionsDesc:'हर पक्के इवेंट के लिए पहला और अंतिम निर्देश तैयार होता है।',
+      communityGames:'सामुदायिक खेल', availableEvents:'उपलब्ध इवेंट', eventsDesc:'यहाँ केवल एडमिन-स्वीकृत इवेंट दिखते हैं।', requestEvent:'इवेंट अनुरोध', createFromSlot:'स्वीकृत स्थल समय से इवेंट बनाएँ', createFromSlotDesc:'नीचे एडमिन-स्वीकृत स्थल समय चुनें। उपयोगकर्ता का इवेंट एडमिन स्वीकृति के बाद ही प्रकाशित होगा।', approvedSlots:'स्वीकृत स्थल समय', eventTitle:'इवेंट शीर्षक', sport:'खेल', level:'स्तर', groupType:'समूह प्रकार', minimumPlayers:'न्यूनतम खिलाड़ी', maximumPlayers:'अधिकतम खिलाड़ी', description:'विवरण', sendForApproval:'एडमिन स्वीकृति के लिए भेजें', cancel:'रद्द करें',
+      accountAccess:'खाता प्रवेश', email:'ईमेल', password:'पासवर्ड', demoAccounts:'डेमो खाते', venueManager:'स्थल प्रबंधक', registeredUser:'पंजीकृत उपयोगकर्ता', newMember:'नया सदस्य', createAccount:'खाता बनाएँ', fullName:'पूरा नाम', phone:'फ़ोन', mainSport:'मुख्य खेल',
+      myArea:'मेरा क्षेत्र', myEvents:'मेरे इवेंट', create:'बनाएँ', notifications:'सूचनाएँ', adminPanel:'एडमिन पैनल', adminPanelDesc:'स्थल, समय और इवेंट स्वीकृत करें; निर्देश बनाएँ।', overview:'सारांश', slotApprovals:'समय स्वीकृति', eventApprovals:'इवेंट स्वीकृति', venueAccounts:'स्थल और खाते',
+      venuePortal:'स्थल पोर्टल', venueManagerPanel:'स्थल प्रबंधक पैनल', venuePanelDesc:'खाली समय जोड़ें और अंतिम इवेंट निर्देश पाएँ।', addFreeTime:'खाली समय जोड़ें', addFreeTimeDesc:'एडमिन स्वीकृति के बाद ही समय उपयोगकर्ताओं को दिखेगा।', date:'तारीख', start:'शुरू', end:'समाप्त', venueFee:'स्थल शुल्क', note:'नोट', submitSlot:'स्वीकृति के लिए समय भेजें', mySlots:'मेरे स्थल समय', finalInstructions:'अंतिम निर्देश',
+      footerLine:'सक्रिय जीवन, सक्रिय समुदाय। यूके के स्थानीय खेल समुदायों के लिए बनाया गया।',
+      noEvents:'अभी कोई स्वीकृत इवेंट नहीं है।', noSlots:'कोई स्वीकृत स्थल समय उपलब्ध नहीं है।', loginRequired:'पहले लॉग इन करें।', userOnly:'इस कार्य के लिए पंजीकृत उपयोगकर्ता खाता चाहिए।', selected:'चुना गया', venue:'स्थल', time:'समय', remaining:'शेष', join:'इवेंट में जुड़ें', joined:'जुड़ गए', full:'पूरा', details:'विवरण', participants:'खिलाड़ी', perPerson:'प्रति व्यक्ति', totalVenueFee:'स्थल शुल्क', status:'स्थिति', createdBy:'निर्माता', firstInstruction:'पहला निर्देश', secondInstruction:'अंतिम निर्देश', pendingAdmin:'एडमिन स्वीकृति लंबित', published:'प्रकाशित', finalized:'पक्का', cancelled:'रद्द', rejected:'अस्वीकृत', approved:'स्वीकृत', held:'रोक रखा', reserved:'आरक्षित', pending:'लंबित',
+      eventRequestSent:'इवेंट अनुरोध एडमिन को भेजा गया।', slotRequestSent:'स्थल समय एडमिन को भेजा गया।', loginSuccess:'लॉग इन सफल।', registerSuccess:'खाता बन गया।', logoutSuccess:'लॉग आउट हुआ।', invalidLogin:'ईमेल या पासवर्ड गलत है।', emailExists:'यह ईमेल पहले से पंजीकृत है।', mustSelectSlot:'स्थल समय चुनें।', invalidPlayerRange:'अधिकतम खिलाड़ी न्यूनतम से कम नहीं हो सकते।', outside48:'चुना गया समय अभी से कम से कम 48 घंटे बाद होना चाहिए।', joinedEvent:'आप इवेंट में शामिल हो गए।', alreadyJoined:'आप पहले से इस इवेंट में हैं।', eventFull:'यह इवेंट पूरा है।', approvedEvent:'इवेंट स्वीकृत और प्रकाशित हुआ।', rejectedEvent:'इवेंट अस्वीकृत हुआ।', slotApproved:'स्थल समय स्वीकृत हुआ।', slotRejected:'स्थल समय अस्वीकृत हुआ।', finalGenerated:'अंतिम निर्देश बना।', eventCancelled:'इवेंट रद्द हुआ।',
+      addVenue:'स्थल और प्रबंधक खाता जोड़ें', venueName:'स्थल नाम', address:'पता', managerName:'प्रबंधक नाम', managerEmail:'प्रबंधक ईमेल', managerPassword:'प्रबंधक पासवर्ड', addVenueBtn:'स्थल खाता बनाएँ', venueCreated:'स्थल और प्रबंधक खाता बन गया।', pendingSlots:'लंबित समय', pendingEvents:'लंबित इवेंट', activeEvents:'सक्रिय इवेंट', confirmedEvents:'पक्के इवेंट', users:'उपयोगकर्ता', venues:'स्थल', approve:'स्वीकृत करें', reject:'अस्वीकृत करें', finalize:'पक्का करें', delete:'हटाएँ', none:'कोई नहीं', adminCreated:'एडमिन द्वारा बनाया गया', minReached:'न्यूनतम टीम पूरी', rosterIncomplete:'टीम अभी पर्याप्त नहीं है।', confirmCancel:'क्या यह इवेंट रद्द करें?', instruction1Help:'एडमिन के इवेंट स्वीकृत करने पर बनता है।', instruction2Help:'टीम पूरी होने पर या न्यूनतम उपस्थिति के बाद एडमिन के पक्का करने पर बनता है।',
+      paymentNotice:'ऐप में भुगतान नहीं लिया जाता। आयोजक बताई गई राशि PlayOnSport के बाहर संभालता है।', organizer:'आयोजक', venueContact:'स्थल संपर्क', entryTime:'स्थल प्रवेश समय', eventTime:'इवेंट समय', roster:'टीम', amountToVenue:'स्थल को शुद्ध राशि', collectionTarget:'कुल एकत्र राशि', '48hoursLeft':'48 घंटे से कम शेष', safeWindow:'48 घंटे से अधिक शेष',
+      welcomeBack:'स्वागत है', eventNotFound:'इवेंट नहीं मिला।', slotUnavailable:'यह स्थल समय अब उपलब्ध नहीं है।', demoData:'यह पहला संस्करण डेमो डेटा ब्राउज़र LocalStorage में रखता है।'
+    }
+  };
 
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.remove('hidden');
-        }
+  let lang = localStorage.getItem(LANG_KEY) || 'en';
+  let currentUser = null;
+  let adminTab = 'overview';
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
-    </script>
+  function uid(prefix='id') { return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+  function isoAfter(days, hour=19) { const d = new Date(); d.setDate(d.getDate()+days); d.setHours(hour,0,0,0); return d; }
+  function toDateInput(d) { return d.toISOString().slice(0,10); }
+  function t(key) { return translations[lang]?.[key] ?? translations.en[key] ?? key; }
+  function escapeHtml(value='') { return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c])); }
+  function money(value) { return `${CURRENCY}${Number(value || 0).toFixed(2)}`; }
+
+  function seedState() {
+    const slotDate = isoAfter(7, 19);
+    const finalizedDate = isoAfter(9, 18);
+    const venueId = 'venue_1';
+    const adminId = 'user_admin';
+    const venueUserId = 'user_venue';
+    const regularId = 'user_demo';
+    const slotId = 'slot_demo';
+    const finalSlotId = 'slot_final';
+    return {
+      users: [
+        { id: adminId, name:'PlayOnSport Admin', email:'admin@playonsport.com', password:'1234', phone:'', role:'admin', level:'Advanced', sport:'Volleyball' },
+        { id: venueUserId, name:'North London Venue Manager', email:'venue@playonsport.com', password:'1234', phone:'+44 7700 900111', role:'venue', venueId },
+        { id: regularId, name:'Demo Player', email:'user@playonsport.com', password:'1234', phone:'+44 7700 900222', role:'user', level:'Intermediate', sport:'Volleyball' }
+      ],
+      venues: [
+        { id: venueId, name:'North London Community Sports Hall', address:'London, United Kingdom', managerUserId:venueUserId, contactName:'North London Venue Manager', contactPhone:'+44 7700 900111', sports:['Volleyball','Basketball','Badminton'], active:true }
+      ],
+      slots: [
+        { id:slotId, venueId, date:toDateInput(slotDate), start:'19:00', end:'21:00', sport:'Volleyball', fee:120, note:'Full court and changing rooms included.', status:'approved', createdBy:venueUserId, createdAt:new Date().toISOString() },
+        { id:finalSlotId, venueId, date:toDateInput(finalizedDate), start:'18:00', end:'20:00', sport:'Volleyball', fee:120, note:'Demo finalized event slot.', status:'confirmed', createdBy:venueUserId, createdAt:new Date().toISOString() }
+      ],
+      events: [
+        { id:'event_final_demo', title:'London Community Volleyball', sport:'Volleyball', slotId:finalSlotId, creatorId:regularId, level:'Intermediate', gender:'Mixed', minPlayers:4, maxPlayers:4, description:'Friendly community volleyball game.', status:'finalized', participants:[regularId,'demo_p2','demo_p3','demo_p4'], createdAt:new Date().toISOString(), approvedAt:new Date().toISOString(), finalizedAt:new Date().toISOString(), instruction1:true, instruction2:true }
+      ],
+      notifications: [
+        { id:uid('n'), userId:regularId, role:null, title:'Welcome to PlayOnSport', text:'Your demo profile is ready.', createdAt:new Date().toISOString(), read:false }
+      ]
+    };
+  }
+
+  function getState() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (parsed && parsed.users && parsed.venues && parsed.slots && parsed.events) return parsed;
+    } catch (e) { console.warn(e); }
+    const seeded = seedState();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
+    return seeded;
+  }
+  function saveState(state) { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  function getUser(id) { return getState().users.find(u => u.id === id); }
+  function getVenue(id) { return getState().venues.find(v => v.id === id); }
+  function getSlot(id) { return getState().slots.find(s => s.id === id); }
+  function getEvent(id) { return getState().events.find(e => e.id === id); }
+  function hoursUntil(slot) { return (new Date(`${slot.date}T${slot.start}:00`) - new Date()) / 36e5; }
+  function formatDate(date) { return new Intl.DateTimeFormat(lang === 'tr' ? 'tr-TR' : lang === 'hi' ? 'hi-IN' : 'en-GB', { weekday:'short', day:'2-digit', month:'short', year:'numeric' }).format(new Date(`${date}T12:00:00`)); }
+  function statusLabel(status) {
+    const map = { pending:'pending', pending_admin:'pendingAdmin', approved:'approved', published:'published', finalized:'finalized', cancelled:'cancelled', rejected:'rejected', held:'held', reserved:'reserved', confirmed:'finalized' };
+    return t(map[status] || status);
+  }
+  function statusClass(status) { return `status-${status.replace('_admin','').replace('confirmed','finalized')}`; }
+  function roleHome(role) { return role === 'admin' ? 'admin' : role === 'venue' ? 'venue' : 'user'; }
+
+  function notify({userId=null, role=null, title, text}) {
+    const state = getState();
+    state.notifications.unshift({id:uid('n'), userId, role, title, text, createdAt:new Date().toISOString(), read:false});
+    saveState(state);
+  }
+
+  function showToast(message, type='info') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = `fixed top-4 left-1/2 -translate-x-1/2 z-[100] max-w-[92vw] rounded-2xl border px-4 py-3 text-sm shadow-2xl ${type==='error'?'border-red-400/40 bg-red-950/95 text-red-100':type==='success'?'border-green-400/40 bg-green-950/95 text-green-100':'border-blue-400/30 bg-slate-950/95 text-white'}`;
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => toast.classList.add('hidden'), 3300);
+  }
+
+  function setLanguage(next) {
+    lang = next;
+    localStorage.setItem(LANG_KEY, lang);
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.dataset.i18n; if (translations[lang][key]) el.textContent = translations[lang][key]; });
+    document.querySelectorAll('.lang-btn').forEach(btn => btn.className = `lang-btn rounded-lg px-2.5 py-1.5 ${btn.dataset.lang===lang?'bg-blue-600 text-white shadow':'text-slate-400 hover:text-white'}`);
+    renderCurrentPage();
+    updateHeader();
+  }
+
+  function navigate(page) {
+    const protectedPages = ['create','user','admin','venue'];
+    if (protectedPages.includes(page) && !currentUser) { showToast(t('loginRequired')); page = 'login'; }
+    if (page === 'admin' && currentUser?.role !== 'admin') page = roleHome(currentUser?.role);
+    if (page === 'venue' && currentUser?.role !== 'venue') page = roleHome(currentUser?.role);
+    if (page === 'user' && currentUser?.role !== 'user') page = roleHome(currentUser?.role);
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById(page+'Page');
+    if (target) target.classList.add('active');
+    document.querySelectorAll('.nav-btn,.top-nav').forEach(btn => btn.classList.toggle('active', btn.dataset.page === page || (btn.dataset.page === 'dashboard' && ['user','admin','venue'].includes(page))));
+    window.scrollTo({top:0,behavior:'smooth'});
+    renderPage(page);
+  }
+
+  function renderCurrentPage() {
+    const active = document.querySelector('.page.active')?.id?.replace('Page','') || 'home';
+    renderPage(active);
+  }
+  function renderPage(page) {
+    if (page === 'events') renderEvents();
+    if (page === 'create') renderApprovedSlots();
+    if (page === 'user') renderUserDashboard();
+    if (page === 'admin') renderAdmin();
+    if (page === 'venue') renderVenueDashboard();
+  }
+
+  function restoreSession() {
+    const id = sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY);
+    currentUser = id ? getUser(id) : null;
+    updateHeader();
+  }
+  function updateHeader() {
+    const btn = document.getElementById('accountButton');
+    const dash = document.getElementById('desktopDashboardBtn');
+    if (currentUser) {
+      btn.textContent = currentUser.name.split(' ')[0];
+      btn.className = 'max-w-[110px] truncate rounded-xl border border-blue-400/25 bg-blue-500/10 px-3 py-2 text-xs font-bold text-blue-200';
+      dash?.classList.remove('hidden');
+    } else {
+      btn.textContent = t('login');
+      btn.className = 'rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold shadow-lg shadow-blue-600/20 hover:bg-blue-500';
+      dash?.classList.add('hidden');
+    }
+  }
+  function handleAccountButton() { currentUser ? openDashboard() : navigate('login'); }
+  function openDashboard() { if (!currentUser) return navigate('login'); navigate(roleHome(currentUser.role)); }
+  function requireUserThen(page) {
+    if (!currentUser) return navigate('login');
+    if (!['user','admin'].includes(currentUser.role)) return showToast(t('userOnly'),'error');
+    navigate(page);
+  }
+
+  function fillDemo(role) {
+    const email = role === 'admin' ? 'admin@playonsport.com' : role === 'venue' ? 'venue@playonsport.com' : 'user@playonsport.com';
+    document.getElementById('loginEmail').value = email;
+    document.getElementById('loginPassword').value = '1234';
+  }
+  function loginUser(e) {
+    e.preventDefault();
+    const state = getState();
+    const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+    const password = document.getElementById('loginPassword').value;
+    const user = state.users.find(u => u.email.toLowerCase() === email && u.password === password);
+    if (!user) return showToast(t('invalidLogin'),'error');
+    currentUser = user;
+    localStorage.setItem(SESSION_KEY, user.id);
+    updateHeader();
+    showToast(t('loginSuccess'),'success');
+    navigate(roleHome(user.role));
+  }
+  function registerUser(e) {
+    e.preventDefault();
+    const state = getState();
+    const email = document.getElementById('regEmail').value.trim().toLowerCase();
+    if (state.users.some(u => u.email.toLowerCase() === email)) return showToast(t('emailExists'),'error');
+    const user = { id:uid('user'), role:'user', name:document.getElementById('regName').value.trim(), email, password:document.getElementById('regPassword').value, phone:document.getElementById('regPhone').value.trim(), level:document.getElementById('regLevel').value, sport:document.getElementById('regSport').value };
+    state.users.push(user); saveState(state); currentUser = user; localStorage.setItem(SESSION_KEY,user.id); updateHeader();
+    notify({userId:user.id,title:'PlayOnSport',text:t('registerSuccess')});
+    showToast(t('registerSuccess'),'success'); navigate('user');
+    e.target.reset();
+  }
+  function logout() { currentUser=null; localStorage.removeItem(SESSION_KEY); sessionStorage.removeItem(SESSION_KEY); updateHeader(); showToast(t('logoutSuccess')); navigate('home'); }
+
+  function renderApprovedSlots() {
+    if (!currentUser || !['user','admin'].includes(currentUser.role)) return;
+    const state = getState();
+    const slots = state.slots.filter(s => s.status === 'approved' && hoursUntil(s) >= 48).sort((a,b)=>`${a.date}${a.start}`.localeCompare(`${b.date}${b.start}`));
+    const box = document.getElementById('approvedSlots');
+    document.getElementById('selectedSlotId').value = '';
+    document.getElementById('eventCostPreview').classList.add('hidden');
+    if (!slots.length) { box.innerHTML = `<div class="col-span-full rounded-2xl border border-dashed border-slate-600 p-6 text-center text-sm text-slate-400">${t('noSlots')}</div>`; return; }
+    box.innerHTML = slots.map(s => { const v=getVenue(s.venueId); return `<button type="button" onclick="selectSlot('${s.id}')" id="slotBtn_${s.id}" class="slot-option soft-card rounded-2xl p-4 text-left hover:border-blue-400/50"><div class="flex items-start justify-between gap-3"><div><div class="font-black text-white">${escapeHtml(v?.name || '')}</div><div class="mt-1 text-xs text-slate-400">${escapeHtml(v?.address || '')}</div></div><span class="rounded-lg bg-blue-500/15 px-2 py-1 text-[10px] font-bold text-blue-300">${escapeHtml(s.sport)}</span></div><div class="mt-3 grid grid-cols-2 gap-2 text-xs"><div class="rounded-lg bg-black/20 p-2">📅 ${formatDate(s.date)}</div><div class="rounded-lg bg-black/20 p-2">🕒 ${s.start}–${s.end}</div></div><div class="mt-3 flex items-center justify-between text-xs"><span class="text-slate-400">${t('totalVenueFee')}</span><strong class="text-orange-300">${money(s.fee)}</strong></div></button>`; }).join('');
+  }
+  function selectSlot(id) {
+    const slot = getSlot(id); if (!slot || slot.status !== 'approved') return showToast(t('slotUnavailable'),'error');
+    document.getElementById('selectedSlotId').value = id;
+    document.querySelectorAll('.slot-option').forEach(el => el.classList.remove('selected-slot'));
+    document.getElementById('slotBtn_'+id)?.classList.add('selected-slot');
+    document.getElementById('eventSport').value = slot.sport;
+    updateCostPreview();
+  }
+  function updateCostPreview() {
+    const slot = getSlot(document.getElementById('selectedSlotId').value); if (!slot) return;
+    const max = Math.max(1, Number(document.getElementById('eventMax').value || 1));
+    const preview = document.getElementById('eventCostPreview');
+    preview.classList.remove('hidden');
+    preview.innerHTML = `<div class="flex flex-wrap items-center justify-between gap-3"><div><div class="font-black text-orange-200">${t('paymentNotice')}</div><div class="mt-1 text-xs text-slate-400">${t('totalVenueFee')}: ${money(slot.fee)}</div></div><div class="rounded-xl bg-black/25 px-4 py-3 text-right"><div class="text-[10px] uppercase text-slate-400">${t('perPerson')}</div><div class="text-xl font-black text-white">${money(slot.fee/max)}</div></div></div>`;
+  }
+  document.getElementById('eventMax').addEventListener('input', updateCostPreview);
+
+  function submitEventRequest(e) {
+    e.preventDefault();
+    if (!currentUser || !['user','admin'].includes(currentUser.role)) return showToast(t('userOnly'),'error');
+    const state = getState();
+    const slotId = document.getElementById('selectedSlotId').value;
+    const slot = state.slots.find(s => s.id===slotId);
+    if (!slot) return showToast(t('mustSelectSlot'),'error');
+    if (slot.status !== 'approved') return showToast(t('slotUnavailable'),'error');
+    if (hoursUntil(slot) < 48) return showToast(t('outside48'),'error');
+    const minPlayers = Number(document.getElementById('eventMin').value);
+    const maxPlayers = Number(document.getElementById('eventMax').value);
+    if (maxPlayers < minPlayers) return showToast(t('invalidPlayerRange'),'error');
+    const isAdmin = currentUser.role === 'admin';
+    const event = { id:uid('event'), title:document.getElementById('eventTitle').value.trim(), sport:document.getElementById('eventSport').value, slotId, creatorId:currentUser.id, level:document.getElementById('eventLevel').value, gender:document.getElementById('eventGender').value, minPlayers, maxPlayers, description:document.getElementById('eventDescription').value.trim(), status:isAdmin?'published':'pending_admin', participants:currentUser.role==='user'?[currentUser.id]:[], createdAt:new Date().toISOString(), instruction1:isAdmin, instruction2:false };
+    state.events.push(event);
+    slot.status = isAdmin ? 'reserved' : 'held';
+    saveState(state);
+    if (isAdmin) { notify({role:'user',title:event.title,text:t('approvedEvent')}); } else { notify({role:'admin',title:event.title,text:t('eventRequestSent')}); }
+    showToast(isAdmin ? t('approvedEvent') : t('eventRequestSent'),'success');
+    e.target.reset();
+    navigate(isAdmin ? 'admin' : 'user');
+  }
+
+  function renderEvents() {
+    const state = getState();
+    const list = document.getElementById('eventsList');
+    const events = state.events.filter(e => ['published','finalized'].includes(e.status)).sort((a,b)=>{ const sa=state.slots.find(s=>s.id===a.slotId), sb=state.slots.find(s=>s.id===b.slotId); return `${sa?.date}${sa?.start}`.localeCompare(`${sb?.date}${sb?.start}`); });
+    if (!events.length) { list.innerHTML = `<div class="glass col-span-full rounded-2xl p-8 text-center text-slate-400">${t('noEvents')}</div>`; return; }
+    list.innerHTML = events.map(eventCard).join('');
+  }
+  function eventCard(e) {
+    const slot=getSlot(e.slotId), venue=getVenue(slot?.venueId), creator=getUser(e.creatorId);
+    const count=e.participants.length, isJoined=currentUser && e.participants.includes(currentUser.id), isFull=count>=e.maxPlayers;
+    const progress=Math.min(100,(count/e.maxPlayers)*100);
+    const perPerson=slot ? slot.fee/e.maxPlayers : 0;
+    const canJoin=currentUser?.role==='user' && e.status==='published' && !isFull && !isJoined;
+    return `<article class="glass overflow-hidden rounded-3xl"><div class="relative h-28 bg-gradient-to-br from-blue-700/40 via-slate-950 to-orange-500/20 p-4"><div class="absolute inset-0 opacity-20" style="background-image:radial-gradient(circle at 80% 20%,#38bdf8,transparent 28%)"></div><div class="relative flex items-start justify-between"><span class="rounded-xl border border-white/10 bg-black/30 px-3 py-1 text-xs font-bold">${sportEmoji(e.sport)} ${escapeHtml(e.sport)}</span><span class="chip ${statusClass(e.status)} rounded-xl border px-3 py-1 text-[10px] font-black">${statusLabel(e.status)}</span></div></div><div class="p-5"><h3 class="text-lg font-black">${escapeHtml(e.title)}</h3><p class="mt-1 line-clamp-2 text-xs leading-5 text-slate-400">${escapeHtml(e.description || '')}</p><div class="mt-4 space-y-2 text-xs text-slate-300"><div>📍 <strong>${escapeHtml(venue?.name || '')}</strong></div><div>📅 ${slot?formatDate(slot.date):''} · ${slot?.start || ''}–${slot?.end || ''}</div><div>🎯 ${escapeHtml(e.level)} · ${escapeHtml(e.gender)}</div><div>👤 ${t('createdBy')}: ${escapeHtml(creator?.name || 'Admin')}</div></div><div class="mt-4 flex items-end justify-between"><div><div class="text-[10px] uppercase text-slate-500">${t('participants')}</div><div class="font-black">${count} / ${e.maxPlayers}</div></div><div class="text-right"><div class="text-[10px] uppercase text-slate-500">${t('perPerson')}</div><div class="font-black text-orange-300">${money(perPerson)}</div></div></div><div class="mt-3 h-2 overflow-hidden rounded-full bg-slate-800"><div class="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-400" style="width:${progress}%"></div></div><div class="mt-4 grid grid-cols-2 gap-2"><button onclick="showEventDetails('${e.id}')" class="rounded-xl border border-blue-400/20 px-3 py-2 text-xs font-bold hover:bg-blue-500/10">${t('details')}</button><button ${canJoin?'': 'disabled'} onclick="joinEvent('${e.id}')" class="rounded-xl px-3 py-2 text-xs font-black ${canJoin?'bg-orange-500 hover:bg-orange-400':isJoined?'bg-green-500/15 text-green-300':'bg-slate-800 text-slate-500'}">${isJoined?t('joined'):isFull?t('full'):t('join')}</button></div></div></article>`;
+  }
+  function sportEmoji(sport) { return ({Volleyball:'🏐',Football:'⚽',Basketball:'🏀',Badminton:'🏸',Tennis:'🎾'})[sport] || '🏅'; }
+
+  function joinEvent(id) {
+    if (!currentUser) return navigate('login');
+    if (currentUser.role !== 'user') return showToast(t('userOnly'),'error');
+    const state=getState(), event=state.events.find(e=>e.id===id);
+    if (!event) return showToast(t('eventNotFound'),'error');
+    if (event.participants.includes(currentUser.id)) return showToast(t('alreadyJoined'));
+    if (event.participants.length>=event.maxPlayers) return showToast(t('eventFull'),'error');
+    event.participants.push(currentUser.id);
+    notify({userId:event.creatorId,title:event.title,text:`${currentUser.name} joined. ${event.participants.length}/${event.maxPlayers}`});
+    if (event.participants.length >= event.maxPlayers) finalizeEventData(state,event,true);
+    saveState(state); showToast(t('joinedEvent'),'success'); renderEvents();
+  }
+
+  function showEventDetails(id) {
+    const event=getEvent(id); if(!event)return;
+    const slot=getSlot(event.slotId), venue=getVenue(slot?.venueId), creator=getUser(event.creatorId);
+    const names=event.participants.map(pid=>getUser(pid)?.name || 'Demo Player');
+    const text = `${event.title}\n\n${t('venue')}: ${venue?.name}\n${t('address')}: ${venue?.address}\n${t('date')}: ${slot?formatDate(slot.date):''}\n${t('time')}: ${slot?.start}-${slot?.end}\n${t('organizer')}: ${creator?.name}\n${t('participants')}: ${event.participants.length}/${event.maxPlayers}\n${t('totalVenueFee')}: ${money(slot?.fee)}\n${t('perPerson')}: ${money((slot?.fee||0)/event.maxPlayers)}\n\n${names.join(', ') || t('none')}\n\n${t('paymentNotice')}`;
+    alert(text);
+  }
+
+  function renderUserDashboard() {
+    if (!currentUser || currentUser.role!=='user') return;
+    document.getElementById('userWelcome').textContent = `${t('welcomeBack')}, ${currentUser.name.split(' ')[0]}`;
+    const state=getState();
+    const events=state.events.filter(e=>e.creatorId===currentUser.id || e.participants.includes(currentUser.id)).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+    document.getElementById('myEventsList').innerHTML = events.length ? events.map(e=>miniEventCard(e,true)).join('') : `<div class="rounded-xl border border-dashed border-slate-600 p-5 text-center text-sm text-slate-400">${t('none')}</div>`;
+    const notes=state.notifications.filter(n=>n.userId===currentUser.id || n.role==='user').slice(0,12);
+    document.getElementById('userNotifications').innerHTML = renderNotifications(notes);
+  }
+  function miniEventCard(e, showInstructions=false) {
+    const slot=getSlot(e.slotId), venue=getVenue(slot?.venueId);
+    return `<div class="soft-card rounded-2xl p-4"><div class="flex items-start justify-between gap-3"><div><div class="font-black">${escapeHtml(e.title)}</div><div class="mt-1 text-xs text-slate-400">${escapeHtml(venue?.name || '')} · ${slot?formatDate(slot.date):''} ${slot?.start||''}</div></div><span class="chip ${statusClass(e.status)} rounded-lg border px-2 py-1 text-[10px] font-bold">${statusLabel(e.status)}</span></div><div class="mt-3 flex flex-wrap gap-2 text-[10px]"><span class="chip rounded-lg px-2 py-1">${e.participants.length}/${e.maxPlayers}</span>${e.instruction1?`<button onclick="showInstruction('${e.id}',1)" class="rounded-lg bg-blue-500/15 px-2 py-1 text-blue-300">${t('firstInstruction')}</button>`:''}${e.instruction2?`<button onclick="showInstruction('${e.id}',2)" class="rounded-lg bg-green-500/15 px-2 py-1 text-green-300">${t('secondInstruction')}</button>`:''}</div></div>`;
+  }
+  function renderNotifications(notes) { return notes.length ? notes.map(n=>`<div class="soft-card rounded-xl p-3"><div class="text-xs font-black">${escapeHtml(n.title)}</div><div class="mt-1 text-xs leading-5 text-slate-400">${escapeHtml(n.text)}</div><div class="mt-1 text-[9px] text-slate-600">${new Date(n.createdAt).toLocaleString()}</div></div>`).join('') : `<div class="text-sm text-slate-500">${t('none')}</div>`; }
+
+  function renderAdmin() {
+    if(!currentUser || currentUser.role!=='admin')return;
+    setAdminTab(adminTab,false);
+  }
+  function setAdminTab(tab, rerender=true) {
+    adminTab=tab;
+    document.querySelectorAll('.admin-tab').forEach(btn=>btn.classList.toggle('active',btn.dataset.tab===tab));
+    const content=document.getElementById('adminContent'); if(!content)return;
+    if(tab==='overview') content.innerHTML=adminOverviewHtml();
+    if(tab==='slots') content.innerHTML=adminSlotsHtml();
+    if(tab==='events') content.innerHTML=adminEventsHtml();
+    if(tab==='venues') content.innerHTML=adminVenuesHtml();
+    if(tab==='instructions') content.innerHTML=adminInstructionsHtml();
+  }
+  function adminOverviewHtml() {
+    const s=getState();
+    const cards=[
+      [t('pendingSlots'),s.slots.filter(x=>x.status==='pending').length,'🕒','text-yellow-300'],
+      [t('pendingEvents'),s.events.filter(x=>x.status==='pending_admin').length,'📨','text-orange-300'],
+      [t('activeEvents'),s.events.filter(x=>x.status==='published').length,'🏅','text-blue-300'],
+      [t('confirmedEvents'),s.events.filter(x=>x.status==='finalized').length,'✅','text-green-300'],
+      [t('users'),s.users.filter(x=>x.role==='user').length,'👥','text-cyan-300'],
+      [t('venues'),s.venues.length,'🏟️','text-purple-300']
+    ];
+    const notes=s.notifications.filter(n=>n.role==='admin' || n.userId===currentUser.id).slice(0,10);
+    return `<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">${cards.map(c=>`<div class="glass rounded-2xl p-5"><div class="flex items-center justify-between"><div><div class="text-xs font-bold text-slate-500">${c[0]}</div><div class="mt-2 text-3xl font-black ${c[3]}">${c[1]}</div></div><div class="text-3xl">${c[2]}</div></div></div>`).join('')}</div><div class="mt-5 grid gap-5 lg:grid-cols-[1.1fr_.9fr]"><div class="glass rounded-2xl p-5"><h3 class="font-black">${t('activeEvents')}</h3><div class="mt-4 space-y-3">${s.events.filter(e=>['published','finalized'].includes(e.status)).slice(0,8).map(e=>miniEventCard(e)).join('') || `<div class="text-sm text-slate-500">${t('none')}</div>`}</div></div><div class="glass rounded-2xl p-5"><h3 class="font-black">${t('notifications')}</h3><div class="mt-4 space-y-3">${renderNotifications(notes)}</div><div class="mt-5 rounded-xl border border-blue-400/15 bg-blue-500/5 p-3 text-xs leading-5 text-slate-400">${t('demoData')}</div></div></div>`;
+  }
+  function adminSlotsHtml() {
+    const state=getState(); const pending=state.slots.filter(s=>s.status==='pending'); const all=state.slots.slice().sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+    return `<div class="grid gap-5 lg:grid-cols-[1fr_1fr]"><div class="glass rounded-2xl p-5"><h3 class="text-lg font-black">${t('pendingSlots')}</h3><div class="mt-4 space-y-3">${pending.map(s=>slotAdminCard(s,true)).join('') || `<div class="text-sm text-slate-500">${t('none')}</div>`}</div></div><div class="glass rounded-2xl p-5"><h3 class="text-lg font-black">${t('mySlots')}</h3><div class="mt-4 space-y-3">${all.map(s=>slotAdminCard(s,false)).join('')}</div></div></div>`;
+  }
+  function slotAdminCard(s, actions) { const v=getVenue(s.venueId); return `<div class="soft-card rounded-2xl p-4"><div class="flex items-start justify-between gap-3"><div><div class="font-black">${escapeHtml(v?.name||'')}</div><div class="mt-1 text-xs text-slate-400">${formatDate(s.date)} · ${s.start}–${s.end} · ${escapeHtml(s.sport)}</div><div class="mt-1 text-xs text-orange-300">${money(s.fee)}</div></div><span class="chip ${statusClass(s.status)} rounded-lg border px-2 py-1 text-[10px] font-bold">${statusLabel(s.status)}</span></div>${s.note?`<div class="mt-3 text-xs text-slate-500">${escapeHtml(s.note)}</div>`:''}${actions?`<div class="mt-4 grid grid-cols-2 gap-2"><button onclick="approveSlot('${s.id}')" class="rounded-xl bg-green-600 px-3 py-2 text-xs font-black">${t('approve')}</button><button onclick="rejectSlot('${s.id}')" class="rounded-xl bg-red-600 px-3 py-2 text-xs font-black">${t('reject')}</button></div>`:''}</div>`; }
+  function approveSlot(id){const s=getState(),slot=s.slots.find(x=>x.id===id);if(!slot)return;slot.status='approved';saveState(s);notify({userId:slot.createdBy,title:getVenue(slot.venueId)?.name||'Venue',text:t('slotApproved')});showToast(t('slotApproved'),'success');setAdminTab('slots');}
+  function rejectSlot(id){const s=getState(),slot=s.slots.find(x=>x.id===id);if(!slot)return;slot.status='rejected';saveState(s);notify({userId:slot.createdBy,title:getVenue(slot.venueId)?.name||'Venue',text:t('slotRejected')});showToast(t('slotRejected'));setAdminTab('slots');}
+
+  function adminEventsHtml(){const s=getState();const pending=s.events.filter(e=>e.status==='pending_admin');const active=s.events.filter(e=>['published','finalized'].includes(e.status));return `<div class="grid gap-5 lg:grid-cols-[1fr_1fr]"><div class="glass rounded-2xl p-5"><h3 class="text-lg font-black">${t('pendingEvents')}</h3><div class="mt-4 space-y-3">${pending.map(e=>eventAdminCard(e,true)).join('')||`<div class="text-sm text-slate-500">${t('none')}</div>`}</div></div><div class="glass rounded-2xl p-5"><h3 class="text-lg font-black">${t('activeEvents')}</h3><div class="mt-4 space-y-3">${active.map(e=>eventAdminCard(e,false)).join('')||`<div class="text-sm text-slate-500">${t('none')}</div>`}</div></div></div>`;}
+  function eventAdminCard(e,pendingActions){const slot=getSlot(e.slotId),v=getVenue(slot?.venueId),creator=getUser(e.creatorId);const canFinalize=e.status==='published'&&e.participants.length>=e.minPlayers;return `<div class="soft-card rounded-2xl p-4"><div class="flex items-start justify-between gap-3"><div><div class="font-black">${escapeHtml(e.title)}</div><div class="mt-1 text-xs text-slate-400">${escapeHtml(v?.name||'')} · ${slot?formatDate(slot.date):''} ${slot?.start||''}</div><div class="mt-1 text-xs text-slate-500">${t('createdBy')}: ${escapeHtml(creator?.name||'Admin')} · ${e.participants.length}/${e.maxPlayers}</div></div><span class="chip ${statusClass(e.status)} rounded-lg border px-2 py-1 text-[10px] font-bold">${statusLabel(e.status)}</span></div><div class="mt-3 grid grid-cols-2 gap-2 text-xs"><div class="rounded-lg bg-black/20 p-2">${t('totalVenueFee')}: <b>${money(slot?.fee)}</b></div><div class="rounded-lg bg-black/20 p-2">${t('perPerson')}: <b>${money((slot?.fee||0)/e.maxPlayers)}</b></div></div>${pendingActions?`<div class="mt-4 grid grid-cols-2 gap-2"><button onclick="approveEvent('${e.id}')" class="rounded-xl bg-green-600 px-3 py-2 text-xs font-black">${t('approve')}</button><button onclick="rejectEvent('${e.id}')" class="rounded-xl bg-red-600 px-3 py-2 text-xs font-black">${t('reject')}</button></div>`:`<div class="mt-4 flex flex-wrap gap-2"><button onclick="showInstruction('${e.id}',1)" class="rounded-lg bg-blue-500/15 px-3 py-2 text-xs font-bold text-blue-300">${t('firstInstruction')}</button>${e.instruction2?`<button onclick="showInstruction('${e.id}',2)" class="rounded-lg bg-green-500/15 px-3 py-2 text-xs font-bold text-green-300">${t('secondInstruction')}</button>`:''}${canFinalize?`<button onclick="finalizeEvent('${e.id}')" class="rounded-lg bg-green-600 px-3 py-2 text-xs font-black">${t('finalize')}</button>`:''}${e.status!=='cancelled'?`<button onclick="cancelEvent('${e.id}')" class="rounded-lg bg-red-500/15 px-3 py-2 text-xs font-bold text-red-300">${t('cancel')}</button>`:''}</div>`}</div>`;}
+  function approveEvent(id){const s=getState(),e=s.events.find(x=>x.id===id);if(!e)return;const slot=s.slots.find(x=>x.id===e.slotId);if(!slot||!['held','approved'].includes(slot.status))return showToast(t('slotUnavailable'),'error');e.status='published';e.approvedAt=new Date().toISOString();e.instruction1=true;slot.status='reserved';saveState(s);notify({userId:e.creatorId,title:e.title,text:t('approvedEvent')});notify({role:'user',title:e.title,text:t('approvedEvent')});showToast(t('approvedEvent'),'success');setAdminTab('events');}
+  function rejectEvent(id){const s=getState(),e=s.events.find(x=>x.id===id);if(!e)return;e.status='rejected';const slot=s.slots.find(x=>x.id===e.slotId);if(slot&&slot.status==='held')slot.status='approved';saveState(s);notify({userId:e.creatorId,title:e.title,text:t('rejectedEvent')});showToast(t('rejectedEvent'));setAdminTab('events');}
+  function finalizeEvent(id){const s=getState(),e=s.events.find(x=>x.id===id);if(!e)return;if(e.participants.length<e.minPlayers)return showToast(t('rosterIncomplete'),'error');finalizeEventData(s,e,false);saveState(s);showToast(t('finalGenerated'),'success');setAdminTab('events');}
+  function finalizeEventData(state,e,automatic){e.status='finalized';e.instruction2=true;e.finalizedAt=new Date().toISOString();const slot=state.slots.find(x=>x.id===e.slotId);if(slot)slot.status='confirmed';const venue=getVenue(slot?.venueId);const recipients=[...new Set([e.creatorId,...e.participants])];recipients.forEach(id=>notify({userId:id,title:e.title,text:t('finalGenerated')}));if(venue?.managerUserId)notify({userId:venue.managerUserId,title:e.title,text:t('finalGenerated')});notify({role:'admin',title:e.title,text:t('finalGenerated')});}
+  function cancelEvent(id){if(!confirm(t('confirmCancel')))return;const s=getState(),e=s.events.find(x=>x.id===id);if(!e)return;e.status='cancelled';const slot=s.slots.find(x=>x.id===e.slotId);if(slot)slot.status=hoursUntil(slot)>=48?'approved':'cancelled';saveState(s);[e.creatorId,...e.participants].forEach(uid=>notify({userId:uid,title:e.title,text:t('eventCancelled')}));showToast(t('eventCancelled'));setAdminTab('events');}
+
+  function adminVenuesHtml(){const s=getState();return `<div class="grid gap-5 lg:grid-cols-[.8fr_1.2fr]"><form onsubmit="addVenue(event)" class="glass rounded-2xl p-5"><h3 class="text-lg font-black">${t('addVenue')}</h3><div class="mt-4 space-y-3"><input id="venueName" required placeholder="${t('venueName')}" class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3"><input id="venueAddress" required placeholder="${t('address')}" class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3"><input id="managerName" required placeholder="${t('managerName')}" class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3"><input id="managerEmail" type="email" required placeholder="${t('managerEmail')}" class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3"><input id="managerPassword" required minlength="4" placeholder="${t('managerPassword')}" class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3"><input id="managerPhone" placeholder="${t('phone')}" class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3"><button class="w-full rounded-xl bg-blue-600 px-4 py-3 font-black">${t('addVenueBtn')}</button></div></form><div class="glass rounded-2xl p-5"><h3 class="text-lg font-black">${t('venues')}</h3><div class="mt-4 space-y-3">${s.venues.map(v=>{const m=s.users.find(u=>u.id===v.managerUserId);return `<div class="soft-card rounded-2xl p-4"><div class="font-black">${escapeHtml(v.name)}</div><div class="mt-1 text-xs text-slate-400">${escapeHtml(v.address)}</div><div class="mt-3 grid gap-1 text-xs"><div>${t('venueManager')}: <b>${escapeHtml(m?.name||'')}</b></div><div>${t('email')}: ${escapeHtml(m?.email||'')}</div><div>${t('phone')}: ${escapeHtml(m?.phone||'')}</div></div></div>`}).join('')}</div></div></div>`;}
+  function addVenue(e){e.preventDefault();const s=getState();const email=document.getElementById('managerEmail').value.trim().toLowerCase();if(s.users.some(u=>u.email.toLowerCase()===email))return showToast(t('emailExists'),'error');const venueId=uid('venue'),userId=uid('user');s.users.push({id:userId,role:'venue',venueId,name:document.getElementById('managerName').value.trim(),email,password:document.getElementById('managerPassword').value,phone:document.getElementById('managerPhone').value.trim()});s.venues.push({id:venueId,name:document.getElementById('venueName').value.trim(),address:document.getElementById('venueAddress').value.trim(),managerUserId:userId,contactName:document.getElementById('managerName').value.trim(),contactPhone:document.getElementById('managerPhone').value.trim(),sports:[],active:true});saveState(s);showToast(t('venueCreated'),'success');e.target.reset();setAdminTab('venues');}
+  function adminInstructionsHtml(){const s=getState();const events=s.events.filter(e=>e.instruction1||e.instruction2).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));return `<div class="glass rounded-2xl p-5"><div class="mb-4 flex items-center justify-between"><div><h3 class="text-lg font-black">${t('instructions')}</h3><p class="mt-1 text-xs text-slate-400">${t('instruction1Help')} ${t('instruction2Help')}</p></div></div><div class="grid gap-3 md:grid-cols-2">${events.map(e=>`<div class="soft-card rounded-2xl p-4"><div class="font-black">${escapeHtml(e.title)}</div><div class="mt-3 flex flex-wrap gap-2">${e.instruction1?`<button onclick="showInstruction('${e.id}',1)" class="rounded-lg bg-blue-500/15 px-3 py-2 text-xs font-bold text-blue-300">${t('firstInstruction')}</button>`:''}${e.instruction2?`<button onclick="showInstruction('${e.id}',2)" class="rounded-lg bg-green-500/15 px-3 py-2 text-xs font-bold text-green-300">${t('secondInstruction')}</button>`:''}</div></div>`).join('')||`<div class="text-sm text-slate-500">${t('none')}</div>`}</div></div>`;}
+
+  function showInstruction(id,stage){const e=getEvent(id);if(!e)return;const slot=getSlot(e.slotId),v=getVenue(slot?.venueId),creator=getUser(e.creatorId);const roster=e.participants.map(pid=>getUser(pid)?.name||'Demo Player').join(', ');const per=(slot?.fee||0)/e.maxPlayers;const base=`${stage===1?t('firstInstruction'):t('secondInstruction')}\n\n${e.title}\n${t('venue')}: ${v?.name}\n${t('address')}: ${v?.address}\n${t('date')}: ${slot?formatDate(slot.date):''}\n${t('eventTime')}: ${slot?.start}–${slot?.end}\n${t('organizer')}: ${creator?.name||'Admin'}\n${t('venueContact')}: ${v?.contactName||''} ${v?.contactPhone||''}\n${t('totalVenueFee')}: ${money(slot?.fee)}\n${t('perPerson')}: ${money(per)}\n${t('participants')}: ${e.participants.length}/${e.maxPlayers}`;const final=stage===2?`\n${t('entryTime')}: ${entryTime(slot?.start)}\n${t('amountToVenue')}: ${money(slot?.fee)}\n${t('collectionTarget')}: ${money(slot?.fee)}\n${t('roster')}: ${roster||t('none')}`:'';alert(base+final+`\n\n${t('paymentNotice')}`);}
+  function entryTime(time){if(!time)return'';const [h,m]=time.split(':').map(Number);const d=new Date();d.setHours(h,m-15,0,0);return d.toTimeString().slice(0,5);}
+
+  function renderVenueDashboard(){if(!currentUser||currentUser.role!=='venue')return;const state=getState(),venue=state.venues.find(v=>v.id===currentUser.venueId);document.getElementById('venuePanelTitle').textContent=venue?.name||t('venueManagerPanel');document.getElementById('slotFee').value=document.getElementById('slotFee').value||120;const minDate=new Date(Date.now()+48*36e5);document.getElementById('slotDate').min=toDateInput(minDate);const slots=state.slots.filter(s=>s.venueId===currentUser.venueId).sort((a,b)=>`${b.date}${b.start}`.localeCompare(`${a.date}${a.start}`));document.getElementById('venueSlotsList').innerHTML=slots.length?slots.map(s=>slotAdminCard(s,false)).join(''):`<div class="text-sm text-slate-500">${t('none')}</div>`;const events=state.events.filter(e=>e.instruction2&&state.slots.find(s=>s.id===e.slotId)?.venueId===currentUser.venueId);document.getElementById('venueInstructions').innerHTML=events.length?events.map(e=>`<div class="soft-card rounded-2xl p-4"><div class="font-black">${escapeHtml(e.title)}</div><div class="mt-2 text-xs text-slate-400">${getSlot(e.slotId)?formatDate(getSlot(e.slotId).date):''} · ${getSlot(e.slotId)?.start||''}</div><button onclick="showInstruction('${e.id}',2)" class="mt-3 rounded-lg bg-green-500/15 px-3 py-2 text-xs font-bold text-green-300">${t('secondInstruction')}</button></div>`).join(''):`<div class="text-sm text-slate-500">${t('none')}</div>`;}
+  function submitVenueSlot(e){e.preventDefault();if(!currentUser||currentUser.role!=='venue')return;const date=document.getElementById('slotDate').value,start=document.getElementById('slotStart').value;if((new Date(`${date}T${start}:00`)-new Date())<48*36e5)return showToast(t('outside48'),'error');const s=getState();s.slots.push({id:uid('slot'),venueId:currentUser.venueId,date,start,end:document.getElementById('slotEnd').value,sport:document.getElementById('slotSport').value,fee:Number(document.getElementById('slotFee').value),note:document.getElementById('slotNote').value.trim(),status:'pending',createdBy:currentUser.id,createdAt:new Date().toISOString()});saveState(s);notify({role:'admin',title:getVenue(currentUser.venueId)?.name||'Venue',text:t('slotRequestSent')});showToast(t('slotRequestSent'),'success');e.target.reset();renderVenueDashboard();}
+
+  function runDeadlineChecks(){const s=getState();let changed=false;s.events.forEach(e=>{if(e.status!=='published')return;const slot=s.slots.find(x=>x.id===e.slotId);if(!slot)return;const hrs=hoursUntil(slot);if(hrs<=48&&hrs>0){if(e.participants.length>=e.minPlayers){finalizeEventData(s,e,false);changed=true;}else{e.status='cancelled';slot.status='cancelled';[e.creatorId,...e.participants].forEach(uid=>notify({userId:uid,title:e.title,text:t('eventCancelled')}));changed=true;}}});if(changed)saveState(s);}
+
+  document.addEventListener('DOMContentLoaded',()=>{getState();restoreSession();setLanguage(lang);runDeadlineChecks();const d=isoAfter(3,19);document.getElementById('slotDate').min=toDateInput(d);});
+</script>
 </body>
 </html>
