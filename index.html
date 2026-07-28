@@ -1,153 +1,303 @@
-# PlayOnSport V1 — Veritabanı ve Mimari Dokümantasyonu
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlayOnSport V1 — Operasyon & Organizasyon Paneli</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .active-tab { border-bottom: 3px solid #3b82f6; color: #1d4ed8; font-weight: 600; }
+        .instruction-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
 
-Bu belge, **PlayOnSport V1** operasyon algoritmasına uygun olarak tasarlanmış **PostgreSQL / MySQL** uyumlu ilişkisel veritabanı (ERD) şemasını, tablo yapılarını ve iş kurallarını (Business Logic) içerir.
+    <!-- Header -->
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-volleyball text-amber-500 text-2xl"></i>
+                <span class="text-xl font-bold tracking-wide">PlayOnSport <span class="text-xs bg-amber-500 text-slate-900 px-2 py-0.5 rounded font-mono">V1 ALGORİTMASI</span></span>
+            </div>
+            <div class="text-xs text-slate-400 hidden md:block">
+                <i class="fa-solid fa-shield-halved text-emerald-400 mr-1"></i> %100 Ücretsiz Organizasyon & Otomatik Talimat Sistemi
+            </div>
+        </div>
+    </header>
 
----
+    <!-- Tab Navigation -->
+    <div class="bg-white border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 flex space-x-8 overflow-x-auto">
+            <button onclick="switchTab('user')" id="tab-user" class="py-4 px-2 active-tab flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-users"></i> 1. Kullanıcı Ekranı (Etkinlik Katılımı)
+            </button>
+            <button onclick="switchTab('facility')" id="tab-facility" class="py-4 px-2 text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-building-circle-check"></i> 2. Salon Yöneticisi Paneli
+            </button>
+            <button onclick="switchTab('admin')" id="tab-admin" class="py-4 px-2 text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-user-gear"></i> 3. Admin Onay & Talimat Paneli
+            </button>
+        </div>
+    </div>
 
-## 1. Veritabanı Tablo Şeması (SQL)
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
 
-### A. Kullanıcı Yönetimi
-```sql
--- Kullanıcılar (Kayıtlı Kullanıcı, Admin, Salon Yöneticisi)
-CREATE TABLE users (
-    user_id SERIAL PRIMARY KEY,
-    full_name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) UNIQUE NOT NULL,
-    phone_number VARCHAR(20) NOT NULL,
-    role VARCHAR(20) CHECK (role IN ('user', 'admin', 'facility_manager')) DEFAULT 'user',
-    skill_level VARCHAR(20) CHECK (skill_level IN ('beginner', 'intermediate', 'advanced', 'pro')),
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+        <!-- TAB 1: KULLANICI EKRANI -->
+        <section id="sec-user" class="space-y-6">
+            <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900">Aktif Etkinlikler & Katılım</h1>
+                    <p class="text-sm text-slate-500">Sistem üzerinden onaylanmış, katılımcı bekleyen spor etkinlikleri.</p>
+                </div>
+                <button onclick="openModal('modal-create-event')" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Etkinlik Talebi Oluştur
+                </button>
+            </div>
 
+            <!-- Spor Dalları Filtre -->
+            <div class="flex gap-2 overflow-x-auto pb-2">
+                <button class="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium">Tüm Sporlar</button>
+                <button class="px-4 py-2 bg-white text-slate-600 hover:bg-slate-50 rounded-lg text-sm font-medium border border-slate-200">Voleybol</button>
+                <button class="px-4 py-2 bg-white text-slate-600 hover:bg-slate-50 rounded-lg text-sm font-medium border border-slate-200">Futbol</button>
+                <button class="px-4 py-2 bg-white text-slate-600 hover:bg-slate-50 rounded-lg text-sm font-medium border border-slate-200">Basketbol</button>
+            </div>
 
--- Salon Bilgileri
-CREATE TABLE facilities (
-    facility_id SERIAL PRIMARY KEY,
-    manager_id INT REFERENCES users(user_id), -- Salon yöneticisi hesabı
-    facility_name VARCHAR(150) NOT NULL,
-    address TEXT NOT NULL,
-    map_location_url TEXT,
-    contact_phone VARCHAR(20) NOT NULL,
-    facility_rules TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+            <!-- Etkinlik Kartları Listesi -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Kart 1 -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col justify-between">
+                    <div class="p-5 space-y-4">
+                        <div class="flex justify-between items-start">
+                            <span class="bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
+                                <i class="fa-solid fa-clock"></i> Katılımcı Bekleniyor
+                            </span>
+                            <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">#POS-V84</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900">Dinamik Voleybol Maçı (Orta Seviye)</h3>
+                            <p class="text-sm text-slate-500 flex items-center gap-1 mt-1">
+                                <i class="fa-solid fa-location-dot text-red-500"></i> Dinamik Spor Kompleksi — Saha A
+                            </p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-lg border border-slate-100">
+                            <div><span class="text-slate-400 block">Tarih & Saat:</span> <strong class="text-slate-700">15 Ağu / 20:00 - 21:30</strong></div>
+                            <div><span class="text-slate-400 block">Cinsiyet:</span> <strong class="text-slate-700">Karma Kadro</strong></div>
+                            <div><span class="text-slate-400 block">Salon Ücreti:</span> <strong class="text-slate-700">1.200 TL</strong></div>
+                            <div><span class="text-slate-400 block">Kişi Başı Tutar:</span> <strong class="text-emerald-600 font-bold">100 TL</strong></div>
+                        </div>
+                        <!-- Kadro Durumu -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs font-semibold">
+                                <span>Katılımcı Sayısı</span>
+                                <span class="text-blue-600">8 / 12 Kişi</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div class="bg-blue-600 h-full rounded-full" style="width: 66%;"></div>
+                            </div>
+                            <p class="text-[11px] text-slate-400">Min. 10 kişi ulaşıldığında 2. talimat yayınlanır.</p>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-slate-50 border-t border-slate-100 flex gap-2">
+                        <button onclick="alert('Kadroya başarıyla katıldınız!')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg text-sm transition">
+                            Etkinliğe Katıl
+                        </button>
+                        <button onclick="openModal('modal-instruction-1')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-2 rounded-lg text-sm font-medium transition" title="Birinci Talimatı Gör">
+                            <i class="fa-solid fa-file-invoice"></i>
+                        </button>
+                    </div>
+                </div>
 
--- Salonun Sunduğu Spor Dalları ve Ücretler
-CREATE TABLE facility_sports (
-    facility_sport_id SERIAL PRIMARY KEY,
-    facility_id INT REFERENCES facilities(facility_id) ON DELETE CASCADE,
-    sport_type VARCHAR(50) NOT NULL, -- Voleybol, Futbol, Basketbol vb.
-    hourly_rate DECIMAL(10,2) NOT NULL -- Varsayılan saatlik ücret
-);
+                <!-- Kart 2 (Kesinleşmiş) -->
+                <div class="bg-white rounded-xl shadow-sm border border-emerald-200 overflow-hidden flex flex-col justify-between">
+                    <div class="p-5 space-y-4">
+                        <div class="flex justify-between items-start">
+                            <span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
+                                <i class="fa-solid fa-circle-check"></i> Kesinleşti (2. Talimat)
+                            </span>
+                            <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">#POS-V85</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900">Gece Voleybolu Turnuva Prova</h3>
+                            <p class="text-sm text-slate-500 flex items-center gap-1 mt-1">
+                                <i class="fa-solid fa-location-dot text-red-500"></i> ASELSAN Spor Salonu
+                            </p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-lg border border-slate-100">
+                            <div><span class="text-slate-400 block">Tarih & Saat:</span> <strong class="text-slate-700">14 Ağu / 21:00 - 22:30</strong></div>
+                            <div><span class="text-slate-400 block">Cinsiyet:</span> <strong class="text-slate-700">Kadınlar</strong></div>
+                            <div><span class="text-slate-400 block">Salon Ücreti:</span> <strong class="text-slate-700">1.440 TL</strong></div>
+                            <div><span class="text-slate-400 block">Kişi Başı Net:</span> <strong class="text-emerald-600 font-bold">120 TL</strong></div>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs font-semibold">
+                                <span>Kadro Tamamlandı</span>
+                                <span class="text-emerald-600">12 / 12 Kişi</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div class="bg-emerald-500 h-full rounded-full" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-slate-50 border-t border-slate-100 flex gap-2">
+                        <button disabled class="w-full bg-slate-200 text-slate-500 font-medium py-2 rounded-lg text-sm cursor-not-allowed">
+                            Kadro Doldu
+                        </button>
+                        <button onclick="openModal('modal-instruction-2')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition" title="Final Talimatını Gör">
+                            <i class="fa-solid fa-file-contract"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
+        <!-- TAB 2: SALON YÖNETİCİSİ PANELİ -->
+        <section id="sec-facility" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h1 class="text-2xl font-bold text-slate-900">Salon Yöneticisi Paneli</h1>
+                <p class="text-sm text-slate-500">Tesisinize ait boş saatleri girin ve admin onayına gönderin.</p>
+                
+                <form class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tarih</label>
+                        <input type="date" class="w-full p-2.5 border rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Başlangıç - Bitiş Saati</label>
+                        <input type="text" placeholder="20:00 - 21:30" class="w-full p-2.5 border rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Salon Ücreti (TL)</label>
+                        <input type="number" placeholder="1200" class="w-full p-2.5 border rounded-lg text-sm">
+                    </div>
+                    <div class="md:col-span-3 text-right">
+                        <button type="button" onclick="alert('Boş saat kaydedildi, Admin onayına gönderildi!')" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition">
+                            <i class="fa-solid fa-paper-plane mr-1"></i> Admin Onayına Gönder
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
 
--- Salon Yöneticisinin Girdiği Boş Saatler
-CREATE TABLE facility_slots (
-    slot_id SERIAL PRIMARY KEY,
-    facility_id INT REFERENCES facilities(facility_id) ON DELETE CASCADE,
-    sport_type VARCHAR(50) NOT NULL,
-    start_time TIMESTAMP NOT NULL,
-    end_time TIMESTAMP NOT NULL,
-    price DECIMAL(10,2) NOT NULL,
-    note TEXT,
-    slot_status VARCHAR(30) CHECK (
-        slot_status IN (
-            'pending_admin_approval', -- Admin Onayı Bekliyor
-            'approved',               -- Onaylandı (Kullanıcıya Açık)
-            'temporarily_locked',      -- Geçici Olarak Ayrıldı (Talep Oluşturuldu)
-            'bound_to_event',         -- Etkinliğe Bağlandı
-            'confirmed_booking',      -- Kesinleşti
-            'cancelled',              -- İptal Edildi
-            'expired'                 -- Süresi Geçti
-        )
-    ) DEFAULT 'pending_admin_approval',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+        <!-- TAB 3: ADMİN PANELİ -->
+        <section id="sec-admin" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h1 class="text-2xl font-bold text-slate-900">Admin Onay & Kontrol Paneli</h1>
+                <p class="text-sm text-slate-500">Gelen salon saatlerini ve kullanıcı etkinlik taleplerini yönetin.</p>
 
+                <div class="mt-6 space-y-4">
+                    <h2 class="font-bold text-lg text-slate-800">Bekleyen Etkinlik Talepleri</h2>
+                    <div class="border rounded-xl p-4 bg-amber-50/50 border-amber-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">ONAY BEKLİYOR</span>
+                                <h4 class="font-bold text-slate-900">Akşam Voleybolu Karşılaşması</h4>
+                            </div>
+                            <p class="text-xs text-slate-600">Salon: Dinamik Spor Kompleksi | Tarih: 18 Ağu 2026 (20:00 - 21:30)</p>
+                            <p class="text-xs text-slate-500">Kontenjan: Min 10 / Max 12 | Ücret: 1.200 TL (Kişi Başı ~100 TL)</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="alert('Etkinlik onaylandı! Birinci Talimat oluşturuldu ve yayınlandı.')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-semibold transition">
+                                <i class="fa-solid fa-check mr-1"></i> Onayla & 1. Talimatı Üret
+                            </button>
+                            <button onclick="alert('Talep reddedildi. Salon saati tekrar serbest bırakıldı.')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-semibold transition">
+                                Reddet
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
+    </main>
 
--- Kullanıcı veya Admin Tarafından Oluşturulan Etkinlikler
-CREATE TABLE events (
-    event_id SERIAL PRIMARY KEY,
-    creator_id INT REFERENCES users(user_id),
-    slot_id INT UNIQUE REFERENCES facility_slots(slot_id),
-    title VARCHAR(150) NOT NULL,
-    description TEXT,
-    sport_type VARCHAR(50) NOT NULL,
-    gender_type VARCHAR(20) CHECK (gender_type IN ('male', 'female', 'mixed')) DEFAULT 'mixed',
-    skill_level VARCHAR(20) CHECK (skill_level IN ('all', 'beginner', 'intermediate', 'advanced')),
-    
-    min_capacity INT NOT NULL,
-    max_capacity INT NOT NULL,
-    current_capacity INT DEFAULT 0,
-    
-    total_price DECIMAL(10,2) NOT NULL,
-    per_person_price DECIMAL(10,2) GENERATED ALWAYS AS (
-        CASE WHEN current_capacity > 0 THEN total_price / current_capacity ELSE total_price END
-    ) STORED, -- Dinamik kişi başı tutar gösterimi için
-    
-    event_status VARCHAR(30) CHECK (
-        event_status IN (
-            'draft',                  -- Taslak
-            'pending_admin_approval', -- Admin Onayı Bekliyor
-            'published',              -- Onaylandı & Yayınlandı (Birinci Talimat)
-            'waiting_participants',   -- Katılımcı Bekleniyor
-            'min_capacity_reached',   -- Minimum Kadro Oluştu
-            'capacity_full',          -- Kadro Tamamlandı
-            'confirmed',              -- Kesinleşti (İkinci Talimat)
-            'cancelled',              -- İptal Edildi
-            'completed'               -- Tamamlandı
-        )
-    ) DEFAULT 'pending_admin_approval',
-    
-    lock_expiration_time TIMESTAMP, -- Admin onaylamazsa saatin kilidini açmak için zaman aşımı
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+    <!-- MODAL 1: Birinci Talimat -->
+    <div id="modal-instruction-1" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 text-white max-w-lg w-full rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
+            <div class="p-6 space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-file-invoice text-amber-400 text-xl"></i>
+                        <h3 class="font-bold text-lg text-slate-100">BİRİNCİ TALİMAT</h3>
+                    </div>
+                    <button onclick="closeModal('modal-instruction-1')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
+                <div class="text-xs space-y-2 font-mono text-slate-300 bg-slate-950 p-4 rounded-xl border border-slate-800 leading-relaxed">
+                    <p><strong class="text-amber-400">Etkinlik Kodu:</strong> #POS-2026-V84</p>
+                    <p><strong class="text-amber-400">Salon:</strong> Dinamik Spor Kompleksi — Saha A</p>
+                    <p><strong class="text-amber-400">Tarih & Saat:</strong> 15 Ağustos 2026 / 20:00 - 21:30</p>
+                    <p><strong class="text-amber-400">Spor Dalı:</strong> Voleybol (Karma - Orta Seviye)</p>
+                    <p><strong class="text-amber-400">Kontenjan:</strong> Min 10 / Max 12 Kişi</p>
+                    <p><strong class="text-amber-400">Salon Ücreti:</strong> 1.200 TL</p>
+                    <p><strong class="text-amber-400">Kişi Başı Tahmini Tutar:</strong> 100 TL (12 Kişi Katılımında)</p>
+                    <p><strong class="text-amber-400">Son Katılım / İptal Tarihi:</strong> 13 Ağustos 2026 / 20:00 (48 Saat Kala)</p>
+                    <hr class="border-slate-800 my-2">
+                    <p class="text-[11px] text-slate-400">* Para PlayOnSport üzerinden toplanmaz. Tutar maç günü organizatöre elden/EFT olarak teslim edilecektir.</p>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-950 border-t border-slate-800 text-right">
+                <button onclick="closeModal('modal-instruction-1')" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-xs font-semibold">Kapat</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- MODAL 2: Kesinleşen İkinci Talimat -->
+    <div id="modal-instruction-2" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 text-white max-w-lg w-full rounded-2xl shadow-2xl overflow-hidden border border-emerald-500/30">
+            <div class="p-6 space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-file-contract text-emerald-400 text-xl"></i>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-100">İKİNCİ TALİMAT</h3>
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-mono">DURUM: KESİNLEŞTİ</span>
+                        </div>
+                    </div>
+                    <button onclick="closeModal('modal-instruction-2')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
+                <div class="text-xs space-y-2 font-mono text-slate-300 bg-slate-950 p-4 rounded-xl border border-slate-800 leading-relaxed">
+                    <p><strong class="text-emerald-400">Etkinlik Kodu:</strong> #POS-2026-V85</p>
+                    <p><strong class="text-emerald-400">Salon & Adres:</strong> ASELSAN Spor Salonu (Saha B)</p>
+                    <p><strong class="text-emerald-400">Salona Giriş Saati:</strong> 20:45 (Soyunma Odaları Açık)</p>
+                    <p><strong class="text-emerald-400">Maç Saati:</strong> 21:00 - 22:30</p>
+                    <p><strong class="text-emerald-400">Kadro (12/12 Tam):</strong> Volkan D., Harun K., Ayşe T., Mehmet A. (+8)</p>
+                    <p><strong class="text-emerald-400">Salon Net Ücreti:</strong> 1.440 TL</p>
+                    <p><strong class="text-emerald-400">Kişi Başı Net Tutar:</strong> 120 TL</p>
+                    <p><strong class="text-emerald-400">Organizatör İletişim:</strong> Volkan Dadalı (05xx xxx xx xx)</p>
+                    <hr class="border-slate-800 my-2">
+                    <p class="text-[11px] text-amber-300"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Salonda yalnızca temiz tabanlı iç saha voleybol ayakkabısı kullanılabilir.</p>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-950 border-t border-slate-800 text-right">
+                <button onclick="closeModal('modal-instruction-2')" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-xs font-semibold">Kapat</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- Scriptler -->
+    <script>
+        function switchTab(tabName) {
+            document.getElementById('sec-user').classList.add('hidden');
+            document.getElementById('sec-facility').classList.add('hidden');
+            document.getElementById('sec-admin').classList.add('hidden');
 
--- Etkinlik Katılımcıları
-CREATE TABLE event_participants (
-    participant_id SERIAL PRIMARY KEY,
-    event_id INT REFERENCES events(event_id) ON DELETE CASCADE,
-    user_id INT REFERENCES users(user_id),
-    status VARCHAR(20) CHECK (status IN ('joined', 'waitlisted', 'cancelled', 'removed')) DEFAULT 'joined',
-    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT unique_user_per_event UNIQUE(event_id, user_id)
-);
+            document.getElementById('tab-user').classList.remove('active-tab');
+            document.getElementById('tab-facility').classList.remove('active-tab');
+            document.getElementById('tab-admin').classList.remove('active-tab');
 
+            document.getElementById('sec-' + tabName).classList.remove('hidden');
+            document.getElementById('tab-' + tabName).classList.add('active-tab');
+        }
 
--- Üretilen Birinci ve İkinci Talimatların Log/Geçmiş Tablosu
-CREATE TABLE event_instructions (
-    instruction_id SERIAL PRIMARY KEY,
-    event_id INT REFERENCES events(event_id) ON DELETE CASCADE,
-    instruction_type VARCHAR(20) CHECK (instruction_type IN ('first_instruction', 'final_instruction')),
-    payload JSONB NOT NULL, -- Talimat metni, ücretler, kişi listesi vb. tüm snapshot verisi
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
 
-
-[users] (Admin / Yöneticiler / Kullanıcılar)
-   │
-   ├── (1:N) ──> [facilities] (Salonlar)
-   │               └── (1:N) ──> [facility_slots] (Boş Saatler)
-   │                               └── (1:1) ──> [events] (Etkinlikler)
-   │                                               ├── (1:N) ──> [event_participants] (Kadro)
-   │                                               └── (1:N) ──> [event_instructions] (Talimatlar)
-   │
-   └── (1:N) ──> [events] (Etkinlik Oluşturan Kullanıcı)
-
-
-UPDATE events 
-SET event_status = 'cancelled' 
-WHERE event_status IN ('published', 'waiting_participants') 
-  AND current_capacity < min_capacity 
-  AND slot_id IN (
-      SELECT slot_id FROM facility_slots 
-      WHERE start_time <= NOW() + INTERVAL '48 hours'
-  );
-
-
-      
-
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
