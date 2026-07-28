@@ -19,3 +19,135 @@ CREATE TABLE users (
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+-- Salon Bilgileri
+CREATE TABLE facilities (
+    facility_id SERIAL PRIMARY KEY,
+    manager_id INT REFERENCES users(user_id), -- Salon yöneticisi hesabı
+    facility_name VARCHAR(150) NOT NULL,
+    address TEXT NOT NULL,
+    map_location_url TEXT,
+    contact_phone VARCHAR(20) NOT NULL,
+    facility_rules TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Salonun Sunduğu Spor Dalları ve Ücretler
+CREATE TABLE facility_sports (
+    facility_sport_id SERIAL PRIMARY KEY,
+    facility_id INT REFERENCES facilities(facility_id) ON DELETE CASCADE,
+    sport_type VARCHAR(50) NOT NULL, -- Voleybol, Futbol, Basketbol vb.
+    hourly_rate DECIMAL(10,2) NOT NULL -- Varsayılan saatlik ücret
+);
+
+
+-- Salon Yöneticisinin Girdiği Boş Saatler
+CREATE TABLE facility_slots (
+    slot_id SERIAL PRIMARY KEY,
+    facility_id INT REFERENCES facilities(facility_id) ON DELETE CASCADE,
+    sport_type VARCHAR(50) NOT NULL,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    note TEXT,
+    slot_status VARCHAR(30) CHECK (
+        slot_status IN (
+            'pending_admin_approval', -- Admin Onayı Bekliyor
+            'approved',               -- Onaylandı (Kullanıcıya Açık)
+            'temporarily_locked',      -- Geçici Olarak Ayrıldı (Talep Oluşturuldu)
+            'bound_to_event',         -- Etkinliğe Bağlandı
+            'confirmed_booking',      -- Kesinleşti
+            'cancelled',              -- İptal Edildi
+            'expired'                 -- Süresi Geçti
+        )
+    ) DEFAULT 'pending_admin_approval',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+-- Kullanıcı veya Admin Tarafından Oluşturulan Etkinlikler
+CREATE TABLE events (
+    event_id SERIAL PRIMARY KEY,
+    creator_id INT REFERENCES users(user_id),
+    slot_id INT UNIQUE REFERENCES facility_slots(slot_id),
+    title VARCHAR(150) NOT NULL,
+    description TEXT,
+    sport_type VARCHAR(50) NOT NULL,
+    gender_type VARCHAR(20) CHECK (gender_type IN ('male', 'female', 'mixed')) DEFAULT 'mixed',
+    skill_level VARCHAR(20) CHECK (skill_level IN ('all', 'beginner', 'intermediate', 'advanced')),
+    
+    min_capacity INT NOT NULL,
+    max_capacity INT NOT NULL,
+    current_capacity INT DEFAULT 0,
+    
+    total_price DECIMAL(10,2) NOT NULL,
+    per_person_price DECIMAL(10,2) GENERATED ALWAYS AS (
+        CASE WHEN current_capacity > 0 THEN total_price / current_capacity ELSE total_price END
+    ) STORED, -- Dinamik kişi başı tutar gösterimi için
+    
+    event_status VARCHAR(30) CHECK (
+        event_status IN (
+            'draft',                  -- Taslak
+            'pending_admin_approval', -- Admin Onayı Bekliyor
+            'published',              -- Onaylandı & Yayınlandı (Birinci Talimat)
+            'waiting_participants',   -- Katılımcı Bekleniyor
+            'min_capacity_reached',   -- Minimum Kadro Oluştu
+            'capacity_full',          -- Kadro Tamamlandı
+            'confirmed',              -- Kesinleşti (İkinci Talimat)
+            'cancelled',              -- İptal Edildi
+            'completed'               -- Tamamlandı
+        )
+    ) DEFAULT 'pending_admin_approval',
+    
+    lock_expiration_time TIMESTAMP, -- Admin onaylamazsa saatin kilidini açmak için zaman aşımı
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+-- Etkinlik Katılımcıları
+CREATE TABLE event_participants (
+    participant_id SERIAL PRIMARY KEY,
+    event_id INT REFERENCES events(event_id) ON DELETE CASCADE,
+    user_id INT REFERENCES users(user_id),
+    status VARCHAR(20) CHECK (status IN ('joined', 'waitlisted', 'cancelled', 'removed')) DEFAULT 'joined',
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT unique_user_per_event UNIQUE(event_id, user_id)
+);
+
+
+-- Üretilen Birinci ve İkinci Talimatların Log/Geçmiş Tablosu
+CREATE TABLE event_instructions (
+    instruction_id SERIAL PRIMARY KEY,
+    event_id INT REFERENCES events(event_id) ON DELETE CASCADE,
+    instruction_type VARCHAR(20) CHECK (instruction_type IN ('first_instruction', 'final_instruction')),
+    payload JSONB NOT NULL, -- Talimat metni, ücretler, kişi listesi vb. tüm snapshot verisi
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+[users] (Admin / Yöneticiler / Kullanıcılar)
+   │
+   ├── (1:N) ──> [facilities] (Salonlar)
+   │               └── (1:N) ──> [facility_slots] (Boş Saatler)
+   │                               └── (1:1) ──> [events] (Etkinlikler)
+   │                                               ├── (1:N) ──> [event_participants] (Kadro)
+   │                                               └── (1:N) ──> [event_instructions] (Talimatlar)
+   │
+   └── (1:N) ──> [events] (Etkinlik Oluşturan Kullanıcı)
+
+
+UPDATE events 
+SET event_status = 'cancelled' 
+WHERE event_status IN ('published', 'waiting_participants') 
+  AND current_capacity < min_capacity 
+  AND slot_id IN (
+      SELECT slot_id FROM facility_slots 
+      WHERE start_time <= NOW() + INTERVAL '48 hours'
+  );
+
+
+      
+
