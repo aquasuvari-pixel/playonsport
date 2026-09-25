@@ -3,138 +3,124 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Voleybol Bilgi Testi | PlayOnSport</title>
   <meta name="description" content="Voleybol Bilgi Testi uygulamasını iPhone veya Android cihazına indir." />
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(180deg, #06152d, #0b2348);
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #020814;
       color: white;
-      text-align: center;
+    }
+
+    .page {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 18px;
     }
 
     .container {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 28px 16px 50px;
-    }
-
-    .logo {
-      font-size: 18px;
-      font-weight: bold;
-      color: #ff9b1a;
-      margin-bottom: 18px;
-    }
-
-    h1 {
-      font-size: 34px;
-      margin: 0 0 10px;
-    }
-
-    .subtitle {
-      font-size: 18px;
-      color: #d9e5f7;
-      margin-bottom: 22px;
-      line-height: 1.5;
-    }
-
-    .hero-box {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 22px;
-      padding: 14px;
-      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
-      margin-bottom: 24px;
-    }
-
-    .hero-img {
       width: 100%;
-      border-radius: 16px;
+      max-width: 980px;
+      text-align: center;
+    }
+
+    .hero {
+      width: 100%;
       display: block;
+      border-radius: 18px;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+      margin-bottom: 22px;
     }
 
     .buttons {
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
       display: flex;
       flex-direction: column;
       gap: 14px;
-      max-width: 420px;
-      margin: 0 auto;
     }
 
     .btn {
       display: block;
       text-decoration: none;
-      padding: 17px 20px;
-      border-radius: 14px;
+      border-radius: 16px;
+      padding: 18px 20px;
       font-size: 20px;
-      font-weight: bold;
-      transition: transform 0.15s ease;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
+      font-weight: 800;
     }
 
     .ios {
-      background: white;
+      background: #ffffff;
       color: #07142b;
     }
 
     .android {
       background: #20c45a;
-      color: #06220f;
-    }
-
-    .small {
-      margin-top: 18px;
-      font-size: 13px;
-      color: #9fb3d1;
+      color: #04150a;
     }
 
     @media (max-width: 600px) {
-      h1 {
-        font-size: 28px;
+      .page {
+        padding: 10px;
+        align-items: flex-start;
       }
 
-      .subtitle {
-        font-size: 16px;
+      .hero {
+        border-radius: 12px;
+        margin-bottom: 16px;
       }
 
       .btn {
         font-size: 18px;
+        padding: 16px 18px;
       }
     }
   </style>
 </head>
+
 <body>
-  <div class="container">
-    <div class="logo">PlayOnSport</div>
+  <main class="page">
+    <section class="container">
 
-    <h1>Voleybol Bilgi Testi</h1>
-    <div class="subtitle">
-      Voleybol bilgine güveniyor musun?<br>
-      Soruları çöz, seviyeni gör, sıralamaya gir.
-    </div>
+      <img
+        src="./hero.png.png"
+        alt="Voleybol Bilgi Testi"
+        class="hero"
+      />
 
-    <div class="hero-box">
-      <img src="hero.png" alt="Voleybol Bilgi Testi tanıtım görseli" class="hero-img">
-    </div>
+      <div class="buttons">
+        <a
+          class="btn ios"
+          href="https://apps.apple.com/app/voleybol-bilgi-testi/id6805488142"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          iPhone için indir
+        </a>
 
-    <div class="buttons">
-      <a class="btn ios" href="https://apps.apple.com/app/voleybol-bilgi-testi/id6805488142">
-        iPhone için indir
-      </a>
+        <a
+          class="btn android"
+          href="https://play.google.com/store/apps/details?id=com.playonsport.voleybolbilgitesti"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Android için indir
+        </a>
+      </div>
 
-      <a class="btn android" href="https://play.google.com/store/apps/details?id=com.playonsport.voleybolbilgitesti">
-        Android için indir
-      </a>
-    </div>
-
-    <div class="small">
-      Ücretsiz indir. iPhone ve Android için yayında.
-    </div>
-  </div>
+    </section>
+  </main>
 </body>
 </html>
