@@ -10,43 +10,57 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(180deg, #07142b, #0b2348);
+      background: linear-gradient(180deg, #06152d, #0b2348);
       color: white;
       text-align: center;
     }
 
     .container {
-      max-width: 520px;
+      max-width: 760px;
       margin: 0 auto;
-      padding: 40px 22px;
+      padding: 28px 16px 50px;
     }
 
     .logo {
       font-size: 18px;
       font-weight: bold;
-      color: #ff8a00;
-      margin-bottom: 30px;
+      color: #ff9b1a;
+      margin-bottom: 18px;
     }
 
     h1 {
       font-size: 34px;
-      line-height: 1.15;
-      margin-bottom: 14px;
+      margin: 0 0 10px;
     }
 
-    p {
-      font-size: 17px;
+    .subtitle {
+      font-size: 18px;
+      color: #d9e5f7;
+      margin-bottom: 22px;
       line-height: 1.5;
-      color: #d8e3f5;
-      margin-bottom: 28px;
     }
 
-    .card {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.14);
+    .hero-box {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
       border-radius: 22px;
-      padding: 24px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+      padding: 14px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+      margin-bottom: 24px;
+    }
+
+    .hero-img {
+      width: 100%;
+      border-radius: 16px;
+      display: block;
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-width: 420px;
+      margin: 0 auto;
     }
 
     .btn {
@@ -54,53 +68,72 @@
       text-decoration: none;
       padding: 17px 20px;
       border-radius: 14px;
-      margin: 14px 0;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: bold;
+      transition: transform 0.15s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
     }
 
     .ios {
-      background: #ffffff;
+      background: white;
       color: #07142b;
     }
 
     .android {
       background: #20c45a;
-      color: #06190d;
+      color: #06220f;
     }
 
     .small {
-      margin-top: 22px;
+      margin-top: 18px;
       font-size: 13px;
       color: #9fb3d1;
     }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 28px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+      }
+
+      .btn {
+        font-size: 18px;
+      }
+    }
   </style>
 </head>
-
 <body>
   <div class="container">
     <div class="logo">PlayOnSport</div>
 
-    <div class="card">
-      <h1>Voleybol Bilgi Testi</h1>
-      <p>
-        Voleybol bilgine güveniyor musun?<br>
-        Soruları çöz, seviyeni gör, sıralamaya gir.
-      </p>
+    <h1>Voleybol Bilgi Testi</h1>
+    <div class="subtitle">
+      Voleybol bilgine güveniyor musun?<br>
+      Soruları çöz, seviyeni gör, sıralamaya gir.
+    </div>
 
-      <a class="btn ios"
-         href="https://apps.apple.com/app/voleybol-bilgi-testi/id6805488142">
+    <div class="hero-box">
+      <img src="hero.png" alt="Voleybol Bilgi Testi tanıtım görseli" class="hero-img">
+    </div>
+
+    <div class="buttons">
+      <a class="btn ios" href="https://apps.apple.com/app/voleybol-bilgi-testi/id6805488142">
         iPhone için indir
       </a>
 
-      <a class="btn android"
-         href="https://play.google.com/store/apps/details?id=com.playonsport.voleybolbilgitesti">
+      <a class="btn android" href="https://play.google.com/store/apps/details?id=com.playonsport.voleybolbilgitesti">
         Android için indir
       </a>
+    </div>
 
-      <div class="small">
-        Ücretsiz indir. iPhone ve Android için yayında.
-      </div>
+    <div class="small">
+      Ücretsiz indir. iPhone ve Android için yayında.
     </div>
   </div>
 </body>
