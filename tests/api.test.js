@@ -1,0 +1,32 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import handler from '../api/app.js';
+import {emptyState} from '../server/domain.js';
+const env={SUPABASE_URL:'https://project.supabase.co',SUPABASE_ANON_KEY:'anon',SUPABASE_SERVICE_ROLE_KEY:'server-only-secret',APP_ORIGIN:'https://playonsport.co.uk',ADMIN_USER_ID:'admin'};
+Object.assign(process.env,env);
+const user={id:'user',email:'user@example.com',email_confirmed_at:'2026-01-01',user_metadata:{name:'Player',phone:'private',role:'admin'}};
+let snapshot,version,conflicts,rateAllowed,fetchCalls;
+const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json'}});
+function reset(){snapshot=emptyState();version=0;conflicts=0;rateAllowed=true;fetchCalls=[];globalThis.fetch=async(url,options={})=>{
+  fetchCalls.push([url,options]);
+  if(url.endsWith('/rpc/pos_rate_limit'))return json(rateAllowed);
+  if(url.includes('/pos_private_state?'))return json([{data:structuredClone(snapshot),version}]);
+  if(url.endsWith('/rpc/pos_compare_and_swap')){if(conflicts-->0)return json(false);const p=JSON.parse(options.body);if(p.expected_version!==version)return json(false);snapshot=p.next_data;version++;return json(true);}
+  if(url.endsWith('/auth/v1/user'))return options.headers.Authorization==='Bearer valid'?json(user):json({error:'invalid'},401);
+  if(url.includes('/auth/v1/token?')){const p=JSON.parse(options.body);return p.password===' valid password '?json({access_token:'valid',expires_in:3600,user}):json({error:'bad'},400);}
+  if(url.endsWith('/auth/v1/signup'))return json({id:'new'});
+  if(url.includes('/auth/v1/logout'))return json({});
+  throw new Error('Unexpected URL '+url);
+};}
+async function call(action,payload={},overrides={}){let status=200,body;const headers={};const req={method:'POST',headers:{origin:env.APP_ORIGIN,'content-type':'application/json',cookie:'__Host-pos_session=valid'},body:{action,payload},...overrides};const res={setHeader(k,v){headers[k]=v;},status(n){status=n;return this;},json(v){body=v;return this;}};await handler(req,res);return{status,body,headers};}
+test('API rejects missing or cross-site Origin before any upstream access',async()=>{reset();for(const origin of [undefined,'https://evil.example']){const r=await call('state',{}, {headers:{origin,'content-type':'application/json'}});assert.equal(r.status,403);}assert.equal(fetchCalls.length,0);});
+test('API rejects form requests, oversized bodies and non-POST requests',async()=>{reset();assert.equal((await call('state',{}, {headers:{origin:env.APP_ORIGIN,'content-type':'text/plain'}})).status,415);assert.equal((await call('state',{data:'x'.repeat(13000)})).status,400);assert.equal((await call('state',{}, {method:'DELETE'})).status,405);});
+test('missing configuration fails closed',async()=>{reset();delete process.env.ADMIN_USER_ID;try{assert.equal((await call('state')).status,503);assert.equal(fetchCalls.length,0);}finally{process.env.ADMIN_USER_ID='admin';}});
+test('forged browser role does not grant admin through the API',async()=>{reset();const r=await call('addVenue',{name:'Hall',address:'London',email:'a@example.com',role:'admin',user:{role:'admin'}});assert.equal(r.status,403);assert.equal(snapshot.venues.length,0);});
+test('unauthenticated mutations rejected and invalid cookies cleared',async()=>{reset();assert.equal((await call('createEvent',{}, {headers:{origin:env.APP_ORIGIN,'content-type':'application/json'}})).status,401);const r=await call('state',{}, {headers:{origin:env.APP_ORIGIN,'content-type':'application/json',cookie:'__Host-pos_session=forged'}});assert.equal(r.status,401);assert.match(r.headers['Set-Cookie'],/Max-Age=0/);});
+test('login sets HttpOnly Secure Strict cookie, never returns tokens or passwords',async()=>{reset();const r=await call('login',{email:user.email,password:' valid password '});assert.equal(r.status,200);assert.match(r.headers['Set-Cookie'],/HttpOnly; Secure; SameSite=Strict/);assert.ok(!JSON.stringify(r.body).includes('access_token'));assert.ok(!JSON.stringify(r.body).includes('password'));assert.equal(r.body.user.role,'user');assert.equal(r.headers['Cache-Control'],'no-store');});
+test('rate limit is persistent service-side and fails closed',async()=>{reset();rateAllowed=false;const r=await call('login',{email:user.email,password:' valid password '});assert.equal(r.status,429);assert.equal(fetchCalls.length,1);});
+test('CAS conflicts retried without duplicate users',async()=>{reset();conflicts=2;const r=await call('state');assert.equal(r.status,200);assert.equal(snapshot.users.length,1);assert.equal(fetchCalls.filter(([url])=>url.endsWith('/rpc/pos_compare_and_swap')).length,3);});
+test('CAS retry exhaustion returns conflict rather than overwriting',async()=>{reset();conflicts=10;const r=await call('state');assert.equal(r.status,409);assert.equal(snapshot.users.length,0);});
+test('registration sends no privileged metadata and requires long passwords',async()=>{reset();assert.equal((await call('register',{email:user.email,password:'1234'})).status,400);const r=await call('register',{email:user.email,password:'long password example',name:'Player',phone:'123',level:'Mixed',sport:'Volleyball',role:'admin'});assert.equal(r.status,200);const data=JSON.parse(fetchCalls.find(([url])=>url.endsWith('/auth/v1/signup'))[1].body).data;assert.equal(data.role,undefined);assert.equal(r.headers['Set-Cookie'],undefined);});
+test('cron requires its own secret',async()=>{reset();delete process.env.CRON_SECRET;assert.equal((await call('state',{}, {method:'GET'})).status,403);process.env.CRON_SECRET='cron-secret';assert.equal((await call('state',{}, {method:'GET',headers:{authorization:'Bearer cron-secret'}})).status,200);delete process.env.CRON_SECRET;});
