@@ -65,3 +65,9 @@ Veriler bu küçük proje için tek özel JSON kaydında tutulur. Bu yöntem mev
 Bu çalışma tespit edilen açıkları düzeltir; bağımsız sızma testi veya tüm olası açıkların kapandığı garantisi değildir. Kurulumdan sonra normal kullanıcı, salon yöneticisi ve admin hesaplarıyla ayrı ayrı canlı kabul kontrolü yapın.
 
 Teknik başvuru: https://supabase.com/docs/guides/auth — https://supabase.com/docs/guides/database/postgres/row-level-security — https://vercel.com/docs/functions/runtimes/node-js
+
+
+## Şifre yenileme güncellemesi
+Giriş ekranındaki “Şifremi unuttum / Forgot password” bölümüne e-posta girilir. Supabase varsayılan kurtarma e-postası (ConfirmationURL) kök siteye type=recovery fragmentiyle döner. session-cleanup.js bu bağlantıyı reset-password.html ekranına taşır. Yeni şifre ve doğrulanan kullanıcı tokeni API üzerinden Supabase Auth'a iletilir. Anahtarlar tarayıcıya verilmez; token ve şifre tarayıcı depolamasına yazılmaz. Şifre 12–128 karakter olmalıdır. Başarıdan sonra yeniden giriş gerekir. E-posta teslimi için Supabase SMTP ayarları çalışmalıdır.
+
+Supabase panelindeki Send password recovery seçeneği de varsayılan e-posta şablonu ve doğru Site URL ile aynı ekranı açar. Bu dosyaları yükleyip Vercel yayını tamamlanmadan bağlantıyı kullanmayın.

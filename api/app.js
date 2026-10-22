@@ -27,9 +27,9 @@ async function transaction(c,auth,action,payload){
 }
 async function rateLimit(c,req,action){
   const ip=String(req.headers['x-vercel-forwarded-for']||req.socket?.remoteAddress||'unknown').split(',')[0].trim();
-  const group=action==='login'||action==='register'?action:'app';
+  const group=['login','register','requestPasswordReset','resetPassword'].includes(action)?action:'app';
   const key=createHash('sha256').update(c.secret+':'+ip+':'+group).digest('hex');
-  const allowed=await db(c,'rpc/pos_rate_limit',{bucket_key:key,max_requests:group==='register'?5:group==='login'?10:180,window_seconds:group==='app'?60:900});
+  const allowed=await db(c,'rpc/pos_rate_limit',{bucket_key:key,max_requests:group==='app'?180:group==='login'?10:5,window_seconds:group==='app'?60:900});
   if(!allowed)throw new AppError('Too many requests. Please try again later.',429);
 }
 function tokenFrom(req){return String(req.headers.cookie||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(COOKIE+'='))?.slice(COOKIE.length+1);}
@@ -59,6 +59,28 @@ export default async function handler(req,res){
     const {action,payload={}}=body;
     if(!payload||typeof payload!=='object'||Array.isArray(payload))throw new AppError('Invalid payload.');
     await rateLimit(c,req,action);
+    if(action==='requestPasswordReset'){
+      const email=text(payload.email,254).toLowerCase();
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new AppError('Invalid email.');
+      // Use the configured root URL; root cleanup routes recovery tokens to the form.
+      const r=await remote(c,'/auth/v1/recover?redirect_to='+encodeURIComponent(c.origin),{method:'POST',key:c.anon,body:{email}});
+      if(r.status===429)throw new AppError('Çok fazla istek. Bir süre sonra tekrar deneyin. / Too many requests.',429);
+      if(!r.ok&&r.status>=500)throw new AppError('Email service unavailable. Please try again later.',503);
+      return res.status(200).json({message:'Hesap mevcutsa şifre yenileme bağlantısı gönderildi. Gelen kutusunu ve spam klasörünü kontrol edin. / If the account exists, a reset link has been sent.'});
+    }
+    if(action==='resetPassword'){
+      const {accessToken,password}=payload;
+      if(typeof accessToken!=='string'||accessToken.length<10||accessToken.length>8000)throw new AppError('Invalid or expired reset link.',400);
+      if(typeof password!=='string'||password.length<12||password.length>128)throw new AppError('Şifre 12–128 karakter olmalı. / Use 12–128 characters.');
+      const check=await remote(c,'/auth/v1/user',{key:c.anon,bearer:accessToken});
+      if(!check.ok||!check.data?.id||!check.data?.email_confirmed_at)throw new AppError('Bağlantı geçersiz veya süresi dolmuş. Yeni bağlantı isteyin. / Invalid or expired link.',400);
+      // The user's verified token authorizes the change; never use service_role here.
+      const r=await remote(c,'/auth/v1/user',{method:'PUT',key:c.anon,bearer:accessToken,body:{password}});
+      if(!r.ok)throw new AppError('Şifre değiştirilemedi. Farklı bir şifre veya yeni bağlantı deneyin. / Password could not be updated.',400);
+      await remote(c,'/auth/v1/logout?scope=global',{method:'POST',key:c.anon,bearer:accessToken});
+      cookie(res);
+      return res.status(200).json({message:'Şifreniz yenilendi. Yeni şifrenizle giriş yapın. / Password updated. Please log in.'});
+    }
     if(action==='login'||action==='register'){
       const email=text(payload.email,254).toLowerCase();
       if(typeof payload.password!=='string'||!payload.password.length||payload.password.length>128)throw new AppError('Invalid password.');

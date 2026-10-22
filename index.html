@@ -244,6 +244,14 @@
             <label class="block"><span class="mb-2 block text-xs font-bold text-slate-400" data-i18n="password">Password</span><input id="loginPassword" type="password" required class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3" placeholder="••••••" /></label>
             <button class="w-full rounded-xl bg-blue-600 px-5 py-3 font-black hover:bg-blue-500" data-i18n="login">Login</button>
           </form>
+          <details class="mt-6">
+            <summary class="cursor-pointer text-sm text-blue-300">Şifremi unuttum / Forgot password</summary>
+            <form data-submit="requestPasswordReset" class="mt-4 space-y-4">
+              <label class="block"><span class="mb-2 block text-xs text-slate-400">E-posta / Email</span><input id="recoveryEmail" type="email" required autocomplete="email" maxlength="254" class="w-full rounded-xl border border-blue-400/20 bg-slate-950/70 px-4 py-3" /></label>
+              <button type="submit" class="w-full rounded-xl bg-blue-600 px-5 py-3 font-bold">Şifre yenileme bağlantısı gönder / Send reset link</button>
+              <p id="recoveryStatus" role="status" class="text-sm text-slate-300"></p>
+            </form>
+          </details>
         </div>
         <div class="glass rounded-3xl p-6 md:p-8">
           <p class="text-xs font-bold uppercase tracking-[.22em] text-orange-300" data-i18n="newMember">New member</p>
